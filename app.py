@@ -38,7 +38,7 @@ bg_css = f"""
     background-attachment: fixed;
 """ if fundo_b64 else "background-color: #0E0F12;"
 
-# Aplicação de Estilos CSS Personalizados
+# Aplicação de Estilos CSS com Força Máxima (Preto nos Textos)
 st.markdown(f"""
 <style>
     /* Fundo Geral da Página */
@@ -56,41 +56,48 @@ st.markdown(f"""
         margin-bottom: 10px;
     }}
 
-    /* QUADRO BRANCO SÓLIDO (Estilo Portal XD) */
+    /* QUADRO BRANCO SÓLIDO */
     div[data-testid="stVerticalBlock"] > div.element-container:has(div.box-branco) + div,
     .main-white-card {{
         background-color: #FFFFFF !important;
         border-radius: 8px !important;
         padding: 30px !important;
-        box-shadow: 0px 10px 25px rgba(0,0,0,0.5) !important;
+        box-shadow: 0px 10px 25px rgba(0,0,0,0.6) !important;
         margin-bottom: 30px !important;
     }}
 
-    /* Forçar cores escuras e legíveis para todos os textos dentro do painel */
-    .main-white-card .stMarkdown, .main-white-card p, .main-white-card span, .main-white-card label, 
-    .main-white-card h1, .main-white-card h2, .main-white-card h3, .main-white-card h4, .main-white-card div {{
-        color: #1A1D20 !important;
+    /* FORÇAR FONTE PRETA EM TODOS OS TEXTOS DO STREAMLIT */
+    .main-white-card *, 
+    .stMarkdown, .stMarkdown p, .stMarkdown span, .stMarkdown strong,
+    label, p, span, h1, h2, h3, h4, h5, h6, caption {{
+        color: #000000 !important;
     }}
 
-    /* Título Licenças dentro do Quadro */
+    /* Título Licenças DENTRO do Quadro Branco */
     .inner-title {{
-        font-size: 28px;
-        font-weight: 800;
-        color: #1A1D20 !important;
+        font-size: 30px !important;
+        font-weight: 800 !important;
+        color: #000000 !important;
         margin-bottom: 15px;
-        border-bottom: 2px solid #E9ECEF;
+        border-bottom: 2px solid #DEE2E6;
         padding-bottom: 10px;
     }}
 
-    /* Inputs e Caixas de Texto Legíveis */
-    .main-white-card input, .main-white-card select {{
-        background-color: #FFFFFF !important;
-        color: #1A1D20 !important;
+    /* CAIXA DE PESQUISA E INPUTS - NÍTIDOS E CLAROS */
+    div[data-baseweb="input"] > div, 
+    input[type="text"], input, select {{
+        background-color: #F1F3F5 !important;
+        color: #000000 !important;
         border: 1px solid #CED4DA !important;
-        border-radius: 4px !important;
+        border-radius: 6px !important;
+        font-weight: 500 !important;
+    }}
+    
+    input::placeholder {{
+        color: #6C757D !important;
     }}
 
-    /* Estilo das Abas */
+    /* ESTILO DAS ABAS */
     .stTabs [data-baseweb="tab-list"] {{
         gap: 5px;
         border-bottom: 2px solid #DEE2E6;
@@ -100,22 +107,26 @@ st.markdown(f"""
         border-radius: 6px 6px 0px 0px !important;
         padding: 10px 20px !important;
     }}
-    .stTabs [data-baseweb="tab"] p, .stTabs [data-baseweb="tab"] span {{
-        color: #495057 !important;
-        font-weight: 600 !important;
+    .stTabs [data-baseweb="tab"] *, 
+    .stTabs [data-baseweb="tab"] p, 
+    .stTabs [data-baseweb="tab"] span {{
+        color: #212529 !important;
+        font-weight: 700 !important;
     }}
     .stTabs [aria-selected="true"] {{
         background-color: #FF8C00 !important;
     }}
-    .stTabs [aria-selected="true"] p, .stTabs [aria-selected="true"] span {{
+    .stTabs [aria-selected="true"] *, 
+    .stTabs [aria-selected="true"] p, 
+    .stTabs [aria-selected="true"] span {{
         color: #FFFFFF !important;
     }}
 
-    /* Badges de Status */
+    /* BADGES DE STATUS */
     .badge-status {{
         padding: 6px 14px;
         border-radius: 20px;
-        font-weight: 700;
+        font-weight: 800;
         font-size: 12px;
         display: inline-block;
         text-align: center;
@@ -131,11 +142,11 @@ st.markdown(f"""
         border: 1px solid #FAD2CF !important;
     }}
 
-    /* FORÇANDO NITERIDEZ ABSOLUTA NOS BOTÕES */
+    /* BOTÕES DA TABELA - CORES DE DESTAQUE COM LETRA BRANCA */
     
     /* 1. Botão Bloquear / Liberar */
     div.stButton > button[key*="btn_bloqueio_"] {{
-        background-color: #1F2937 !important;
+        background-color: #212529 !important;
         border: none !important;
         border-radius: 6px !important;
         padding: 6px 12px !important;
@@ -153,7 +164,7 @@ st.markdown(f"""
 
     /* 2. Botão Informações (i) */
     div.stButton > button[key*="btn_info_"] {{
-        background-color: #2563EB !important;
+        background-color: #0D6EFD !important;
         border: none !important;
         border-radius: 6px !important;
     }}
@@ -165,12 +176,12 @@ st.markdown(f"""
         font-size: 15px !important;
     }}
     div.stButton > button[key*="btn_info_"]:hover {{
-        background-color: #1D4ED8 !important;
+        background-color: #0B5ED7 !important;
     }}
 
     /* 3. Botão Excluir (X) */
     div.stButton > button[key*="btn_exc_"] {{
-        background-color: #DC2626 !important;
+        background-color: #DC3545 !important;
         border: none !important;
         border-radius: 6px !important;
     }}
@@ -182,7 +193,7 @@ st.markdown(f"""
         font-size: 15px !important;
     }}
     div.stButton > button[key*="btn_exc_"]:hover {{
-        background-color: #B91C1C !important;
+        background-color: #BB2D3B !important;
     }}
 </style>
 """, unsafe_allow_html=True)
@@ -330,15 +341,15 @@ with st.container():
             if licencas:
                 busca = st.text_input("Procurar por Cliente, Razão Social, CNPJ, Token ou Nº da Licença:", placeholder="Digite para pesquisar...")
                 
-                # Cabeçalho da Tabela
+                # Cabeçalho da Tabela (Preto e em Negrito)
                 col_t1, col_t2, col_t3, col_t4, col_t5, col_t6, col_t7 = st.columns([1.5, 2.2, 1.8, 1.3, 1.1, 1.3, 1.2])
-                col_t1.markdown("**Nº Licença**")
-                col_t2.markdown("**Cliente / Razão Social**")
-                col_t3.markdown("**Token / CNPJ**")
-                col_t4.markdown("**Sistema / Postos**")
-                col_t5.markdown("**Status**")
-                col_t6.markdown("**Ação Bloqueio**")
-                col_t7.markdown("**Opções**")
+                col_t1.markdown("<strong style='color: #000000;'>Nº Licença</strong>", unsafe_allow_html=True)
+                col_t2.markdown("<strong style='color: #000000;'>Cliente / Razão Social</strong>", unsafe_allow_html=True)
+                col_t3.markdown("<strong style='color: #000000;'>Token / CNPJ</strong>", unsafe_allow_html=True)
+                col_t4.markdown("<strong style='color: #000000;'>Sistema / Postos</strong>", unsafe_allow_html=True)
+                col_t5.markdown("<strong style='color: #000000;'>Status</strong>", unsafe_allow_html=True)
+                col_t6.markdown("<strong style='color: #000000;'>Ação Bloqueio</strong>", unsafe_allow_html=True)
+                col_t7.markdown("<strong style='color: #000000;'>Opções</strong>", unsafe_allow_html=True)
                 st.markdown("<hr style='margin: 5px 0px 15px 0px; border-color: #DEE2E6;'>", unsafe_allow_html=True)
 
                 if "confirmar_exclusao" not in st.session_state:
@@ -372,9 +383,9 @@ with st.container():
                         c1, c2, c3, c4, c5, c6, c7 = st.columns([1.5, 2.2, 1.8, 1.3, 1.1, 1.3, 1.2])
                         
                         c1.markdown(f"<strong style='color: #D97706;'>{num_lic}</strong>", unsafe_allow_html=True)
-                        c2.markdown(f"**{lic.get('nome_fantasia')}**<br><small style='color: #6C757D;'>{lic.get('nome_empresarial', '-')}</small>", unsafe_allow_html=True)
-                        c3.markdown(f"<span style='color: #111827; font-weight: 700; font-family: monospace;'>{lic.get('token_vinculo')}</span><br><small style='color: #6C757D;'>CNPJ: {lic.get('cnpj', '-')}</small>", unsafe_allow_html=True)
-                        c4.markdown(f"**{sys_tipo}**<br><small style='color: #6C757D;'>Rest: {lic.get('xd_rest_postos')} | Ord: {lic.get('xd_orders_postos')}</small>", unsafe_allow_html=True)
+                        c2.markdown(f"<strong style='color: #000000;'>{lic.get('nome_fantasia')}</strong><br><small style='color: #495057;'>{lic.get('nome_empresarial', '-')}</small>", unsafe_allow_html=True)
+                        c3.markdown(f"<span style='color: #000000; font-weight: bold; font-family: monospace;'>{lic.get('token_vinculo')}</span><br><small style='color: #495057;'>CNPJ: {lic.get('cnpj', '-')}</small>", unsafe_allow_html=True)
+                        c4.markdown(f"<strong style='color: #000000;'>{sys_tipo}</strong><br><small style='color: #495057;'>Rest: {lic.get('xd_rest_postos')} | Ord: {lic.get('xd_orders_postos')}</small>", unsafe_allow_html=True)
                         
                         if is_bloqueado:
                             c5.markdown('<span class="badge-status status-bloqueado">BLOQUEADO</span>', unsafe_allow_html=True)
