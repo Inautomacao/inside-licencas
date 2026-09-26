@@ -18,7 +18,7 @@ HEADERS = {
 
 SENHA_EXCLUSAO = "78592121"
 
-st.set_page_config(page_title="INSIDE AUTOMAÇÃO - Licenças", layout="wide")
+st.set_page_config(page_title="INSIDE AUTOMAÇÃO - Licenças", layout="wide", page_icon="INSIDE")
 
 def get_base64_image(image_path):
     if os.path.exists(image_path):
@@ -39,47 +39,65 @@ st.markdown(f"""
     .stApp {{ {bg_css} }}
     .logo-header {{ display: flex; justify-content: center; width: 100%; margin: 15px 0 10px 0; }}
     
+    /* QUADRO BRANCO SÓLIDO */
     div[data-testid="stVerticalBlock"] > div.element-container:has(div.box-branco) + div {{
         background-color: #FFFFFF !important; border-radius: 8px !important; padding: 30px !important;
         box-shadow: 0px 10px 25px rgba(0,0,0,0.6) !important; margin-bottom: 30px !important;
     }}
-    div[data-testid="stVerticalBlock"] > div.element-container:has(div.box-branco) + div *, 
-    .stMarkdown p, .stMarkdown span, .stMarkdown strong, label, p, span, h1, h2, h3, h4, h5, h6 {{
+
+    /* FORÇAR FONTE PRETA NOS TEXTOS GERAIS DO QUADRO BRANCO */
+    div[data-testid="stVerticalBlock"] > div.element-container:has(div.box-branco) + div p:not(button p),
+    div[data-testid="stVerticalBlock"] > div.element-container:has(div.box-branco) + div span:not(button span),
+    div[data-testid="stVerticalBlock"] > div.element-container:has(div.box-branco) + div label,
+    div[data-testid="stVerticalBlock"] > div.element-container:has(div.box-branco) + div h1,
+    div[data-testid="stVerticalBlock"] > div.element-container:has(div.box-branco) + div h2,
+    div[data-testid="stVerticalBlock"] > div.element-container:has(div.box-branco) + div h3,
+    div[data-testid="stVerticalBlock"] > div.element-container:has(div.box-branco) + div h4 {{
         color: #000000 !important;
     }}
 
     .inner-title {{ font-size: 30px !important; font-weight: 800 !important; border-bottom: 2px solid #DEE2E6; padding-bottom: 10px; margin-bottom: 15px; }}
 
+    /* INPUTS DE TEXTO COM FUNDO CLARO */
     div[data-baseweb="input"] > div, input, select {{
         background-color: #F1F3F5 !important; color: #000000 !important;
         border: 1px solid #CED4DA !important; border-radius: 6px !important; font-weight: 600 !important;
     }}
 
-    /* EFEITO HOVER NAS LINHAS */
-    div[data-testid="stVerticalBlock"]:has(> div.element-container span.row-hook) {{
-        padding: 5px 10px; border-radius: 12px; transition: all 0.3s ease; border: 1px solid transparent;
+    /* SETINHAS (v) E BOTÕES (+ / -) COM FUNDO ESCURO E ÍCONE BRANCO NÍTIDO */
+    div[data-baseweb="select"] > div > div:nth-child(2),
+    div[data-baseweb="base-input"] button {{
+        background-color: #1A1D20 !important;
     }}
-    div[data-testid="stVerticalBlock"]:has(> div.element-container span.row-hook):hover {{
-        background-color: #F8F9FA !important; transform: scale(1.02); box-shadow: 0px 8px 20px rgba(0,0,0,0.15); border: 1px solid #DEE2E6; z-index: 10;
-    }}
-
-    /* FORÇAR ÍCONES/SETAS E + / - PARA BRANCO NOS INPUTS */
-    div[data-baseweb="select"] svg, 
+    div[data-baseweb="select"] svg,
     div[data-baseweb="base-input"] svg,
-    button[aria-label="Step up"] svg, 
+    button[aria-label="Step up"] svg,
     button[aria-label="Step down"] svg {{
         fill: #FFFFFF !important;
         color: #FFFFFF !important;
     }}
-    button[aria-label="Step up"], button[aria-label="Step down"] {{
-        color: #FFFFFF !important;
+
+    /* EFEITO HOVER NAS LINHAS DA TABELA */
+    div[data-testid="stVerticalBlock"]:has(> div.element-container span.row-hook) {{
+        padding: 5px 10px; border-radius: 12px; transition: all 0.3s ease; border: 1px solid transparent;
+    }}
+    div[data-testid="stVerticalBlock"]:has(> div.element-container span.row-hook):hover {{
+        background-color: #F8F9FA !important; transform: scale(1.01); box-shadow: 0px 8px 20px rgba(0,0,0,0.15); border: 1px solid #DEE2E6; z-index: 10;
     }}
 
-    /* BOTÕES FORMS PADRÃO */
-    div.element-container:has(.btn-buscar) + div button {{ background-color: #FFFFFF !important; border: 2px solid #FFC107 !important; border-radius: 6px !important; padding: 10px !important; }}
-    div.element-container:has(.btn-salvar) + div button {{ background-color: #FFFFFF !important; border: 2px solid #28A745 !important; border-radius: 6px !important; padding: 10px !important; }}
+    /* === TODOS OS BOTÕES PADRÕES (Buscar, Salvar, Cancelar) -> FUNDO PRETO LETRA BRANCA === */
+    div.stButton > button {{
+        background-color: #1A1D20 !important; border: 1px solid #343A40 !important; border-radius: 6px !important; padding: 8px !important;
+    }}
+    div.stButton > button p, div.stButton > button span {{
+        color: #FFFFFF !important; font-weight: 800 !important; font-size: 15px !important;
+    }}
+    div.stButton > button:hover {{
+        background-color: #343A40 !important;
+    }}
     
-    /* === BOTÕES DA TABELA === */
+    /* === BOTÕES ESPECÍFICOS DA TABELA COM CORES VIVAS E LETRA BRANCA === */
+    
     /* Status Ativo (Verde) */
     div.element-container:has(.btn-ativo-hook) + div button {{ background-color: #00C851 !important; border-radius: 20px !important; border: none !important; width: 100% !important; padding: 6px 0 !important; }}
     div.element-container:has(.btn-ativo-hook) + div button p {{ color: #FFFFFF !important; font-weight: 900 !important; font-size: 13px !important; text-align: center !important; }}
@@ -88,31 +106,17 @@ st.markdown(f"""
     div.element-container:has(.btn-bloq-hook) + div button {{ background-color: #FF0000 !important; border-radius: 20px !important; border: none !important; width: 100% !important; padding: 6px 0 !important; }}
     div.element-container:has(.btn-bloq-hook) + div button p {{ color: #FFFFFF !important; font-weight: 900 !important; font-size: 13px !important; text-align: center !important; }}
 
-    /* Info (i) */
+    /* Info (i) - Azul */
     div.element-container:has(.btn-info-hook) + div button {{ background-color: #0D6EFD !important; border-radius: 6px !important; border: none !important; }}
     div.element-container:has(.btn-info-hook) + div button p {{ color: #FFFFFF !important; font-weight: 900 !important; font-size: 16px !important; }}
     
-    /* Editar (✎) */
+    /* Editar (✎) - Amarelo Escuro */
     div.element-container:has(.btn-edit-hook) + div button {{ background-color: #D97706 !important; border-radius: 6px !important; border: none !important; }}
     div.element-container:has(.btn-edit-hook) + div button p {{ color: #FFFFFF !important; font-weight: 900 !important; font-size: 16px !important; }}
     
-    /* Excluir (X) */
+    /* Excluir (X) - Vermelho */
     div.element-container:has(.btn-exc-hook) + div button {{ background-color: #DC3545 !important; border-radius: 6px !important; border: none !important; }}
     div.element-container:has(.btn-exc-hook) + div button p {{ color: #FFFFFF !important; font-weight: 900 !important; font-size: 16px !important; }}
-
-    /* === BOTÕES DO PAINEL DE EDIÇÃO (Salvar Modificações / Cancelar) === */
-    div.element-container:has(.btn-salvar-edit) + div button {{ background-color: #198754 !important; border: none !important; border-radius: 6px !important; padding: 8px !important; }}
-    div.element-container:has(.btn-salvar-edit) + div button p {{ color: #FFFFFF !important; font-weight: 800 !important; }}
-
-    div.element-container:has(.btn-cancelar-edit) + div button {{ background-color: #6C757D !important; border: none !important; border-radius: 6px !important; padding: 8px !important; }}
-    div.element-container:has(.btn-cancelar-edit) + div button p {{ color: #FFFFFF !important; font-weight: 800 !important; }}
-
-    /* === BOTÕES DO PAINEL DE EXCLUSÃO === */
-    div.element-container:has(.btn-confirma-exc) + div button {{ background-color: #DC3545 !important; border: none !important; border-radius: 6px !important; }}
-    div.element-container:has(.btn-confirma-exc) + div button p {{ color: #FFFFFF !important; font-weight: 800 !important; }}
-
-    div.element-container:has(.btn-cancela-exc) + div button {{ background-color: #6C757D !important; border: none !important; border-radius: 6px !important; }}
-    div.element-container:has(.btn-cancela-exc) + div button p {{ color: #FFFFFF !important; font-weight: 800 !important; }}
 
     /* Abas */
     .stTabs [data-baseweb="tab-list"] {{ border-bottom: 2px solid #DEE2E6; }}
@@ -143,7 +147,7 @@ with st.container():
         if "cnpj_dados" not in st.session_state: st.session_state["cnpj_dados"] = {}
         col_cnpj1, col_cnpj2 = st.columns([3, 1])
         input_cnpj_busca = col_cnpj1.text_input("CNPJ para busca automática:", placeholder="Digite o CNPJ...", key="busca_cnpj")
-        st.markdown('<span class="btn-buscar"></span>', unsafe_allow_html=True)
+        
         if col_cnpj2.button("Buscar CNPJ", use_container_width=True):
             cnpj_limpo = re.sub(r'\D', '', input_cnpj_busca)
             if len(cnpj_limpo) == 14:
@@ -190,12 +194,22 @@ with st.container():
         tipo_xdorders = col_ot.selectbox("Tipo XDOrders", ["Comum (R$ 8/cada)", "Esfiharia (R$ 6/cada)"], key="cad_tipo_ord")
         
         total_calc = xd_orders * (6 if "Esfiharia" in tipo_xdorders else 8)
-        st.info(f"💰 **Valor Total XDOrders: R$ {total_calc},00**")
+        
+        # INFORMAÇÃO COM ÍCONE DESENHADO EM SVG AO INVÉS DE EMOJI
+        st.markdown(f"""
+        <div style="background-color: #E9ECEF; color: #000000; padding: 12px; border-radius: 6px; border: 1px solid #CED4DA; font-weight: bold; display: flex; align-items: center; gap: 8px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1A1D20" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="1" x2="12" y2="23"></line>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg>
+            Valor Total que compõe a Licença (XDOrders): R$ {total_calc},00
+        </div>
+        <br>
+        """, unsafe_allow_html=True)
         
         token_gerado = str(uuid.uuid4()).split('-')[0].upper()
         st.markdown(f"**Token de Vínculo:** `{token_gerado}`", unsafe_allow_html=True)
         
-        st.markdown('<span class="btn-salvar"></span>', unsafe_allow_html=True)
         if st.button("Emitir e Salvar Licença", use_container_width=True):
             if not nome_fantasia or not num_lic_input: st.error("Nome Fantasia e Nº Licença são obrigatórios!")
             else:
@@ -251,7 +265,7 @@ with st.container():
                         c3.markdown(f"<strong style='color: #000000;'>CNPJ: {lic.get('cnpj', '-')}</strong><br><small style='color: #868E96;'>Token: <code>{lic.get('token_vinculo')}</code></small>", unsafe_allow_html=True)
                         c4.markdown(f"**{lic.get('tipo_sistema', 'XDRest')}**<br><small style='color: #495057;'>Rest: {lic.get('xd_rest_postos')} | Ord: {lic.get('xd_orders_postos')}</small>", unsafe_allow_html=True)
                         
-                        # STATUS BOTÃO CLICÁVEL
+                        # STATUS BOTÃO CLICÁVEL (Verde/Vermelho)
                         if is_bloqueado:
                             c5.markdown('<span class="btn-bloq-hook"></span>', unsafe_allow_html=True)
                             if c5.button("BLOQUEADO", key=f"btn_status_{lic_id}"):
@@ -332,25 +346,20 @@ with st.container():
                                 e_ord = col_o.number_input("Postos XDOrders", value=int(lic.get('xd_orders_postos', 0)))
                                 
                                 c_ok, c_cc = st.columns(2)
-                                
-                                with c_ok:
-                                    st.markdown('<span class="btn-salvar-edit"></span>', unsafe_allow_html=True)
-                                    if st.form_submit_button("Salvar Modificações", use_container_width=True):
-                                        num_formatado = re.sub(r'\D', '', e_nlic).zfill(6)
-                                        up_data = {
-                                            "nome_fantasia": e_nome, "nome_empresarial": e_razao, "cnpj": e_cnpj, "endereco": e_end,
-                                            "cidade": e_cid, "estado": e_est, "tipo_sistema": e_sys, "numero_licenca": f"XDBR.{num_formatado}",
-                                            "xd_rest_postos": e_rest, "xd_orders_postos": e_ord, "tipo_xdorders": "Esfiharia" if "Esfiharia" in e_tord else "Comum"
-                                        }
-                                        requests.patch(f"{URL_SUPABASE}/licencas?id=eq.{lic_id}", json=up_data, headers=HEADERS)
-                                        st.session_state["acao_painel"][lic_id] = None
-                                        st.rerun()
-                                        
-                                with c_cc:
-                                    st.markdown('<span class="btn-cancelar-edit"></span>', unsafe_allow_html=True)
-                                    if st.form_submit_button("Cancelar", use_container_width=True):
-                                        st.session_state["acao_painel"][lic_id] = None
-                                        st.rerun()
+                                if c_ok.form_submit_button("Salvar Modificações", use_container_width=True):
+                                    num_formatado = re.sub(r'\D', '', e_nlic).zfill(6)
+                                    up_data = {
+                                        "nome_fantasia": e_nome, "nome_empresarial": e_razao, "cnpj": e_cnpj, "endereco": e_end,
+                                        "cidade": e_cid, "estado": e_est, "tipo_sistema": e_sys, "numero_licenca": f"XDBR.{num_formatado}",
+                                        "xd_rest_postos": e_rest, "xd_orders_postos": e_ord, "tipo_xdorders": "Esfiharia" if "Esfiharia" in e_tord else "Comum"
+                                    }
+                                    requests.patch(f"{URL_SUPABASE}/licencas?id=eq.{lic_id}", json=up_data, headers=HEADERS)
+                                    st.session_state["acao_painel"][lic_id] = None
+                                    st.rerun()
+                                    
+                                if c_cc.form_submit_button("Cancelar", use_container_width=True):
+                                    st.session_state["acao_painel"][lic_id] = None
+                                    st.rerun()
 
                         # EXCLUSÃO
                         if acao == "del":
@@ -358,21 +367,15 @@ with st.container():
                                 st.warning(f"Excluir definitivamente a licença de {lic.get('nome_fantasia')}?")
                                 pwd = st.text_input("Senha Admin:", type="password")
                                 c_ok, c_cc = st.columns(2)
-                                
-                                with c_ok:
-                                    st.markdown('<span class="btn-confirma-exc"></span>', unsafe_allow_html=True)
-                                    if st.form_submit_button("Confirmar Exclusão", use_container_width=True):
-                                        if pwd == SENHA_EXCLUSAO:
-                                            requests.delete(f"{URL_SUPABASE}/licencas?id=eq.{lic_id}", headers=HEADERS)
-                                            st.session_state["acao_painel"][lic_id] = None
-                                            st.rerun()
-                                        else: st.error("Senha Incorreta!")
-                                        
-                                with c_cc:
-                                    st.markdown('<span class="btn-cancela-exc"></span>', unsafe_allow_html=True)
-                                    if st.form_submit_button("Cancelar", use_container_width=True):
+                                if c_ok.form_submit_button("Confirmar Exclusão", use_container_width=True):
+                                    if pwd == SENHA_EXCLUSAO:
+                                        requests.delete(f"{URL_SUPABASE}/licencas?id=eq.{lic_id}", headers=HEADERS)
                                         st.session_state["acao_painel"][lic_id] = None
                                         st.rerun()
+                                    else: st.error("Senha Incorreta!")
+                                if c_cc.form_submit_button("Cancelar", use_container_width=True):
+                                    st.session_state["acao_painel"][lic_id] = None
+                                    st.rerun()
 
                         st.markdown("<hr style='margin: 0; border-color: #E9ECEF;'>", unsafe_allow_html=True)
             else: st.info("Nenhuma licença cadastrada.")
