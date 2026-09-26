@@ -63,7 +63,19 @@ st.markdown(f"""
         background-color: #F8F9FA !important; transform: scale(1.02); box-shadow: 0px 8px 20px rgba(0,0,0,0.15); border: 1px solid #DEE2E6; z-index: 10;
     }}
 
-    /* BOTÕES FORMS */
+    /* FORÇAR ÍCONES/SETAS E + / - PARA BRANCO NOS INPUTS */
+    div[data-baseweb="select"] svg, 
+    div[data-baseweb="base-input"] svg,
+    button[aria-label="Step up"] svg, 
+    button[aria-label="Step down"] svg {{
+        fill: #FFFFFF !important;
+        color: #FFFFFF !important;
+    }}
+    button[aria-label="Step up"], button[aria-label="Step down"] {{
+        color: #FFFFFF !important;
+    }}
+
+    /* BOTÕES FORMS PADRÃO */
     div.element-container:has(.btn-buscar) + div button {{ background-color: #FFFFFF !important; border: 2px solid #FFC107 !important; border-radius: 6px !important; padding: 10px !important; }}
     div.element-container:has(.btn-salvar) + div button {{ background-color: #FFFFFF !important; border: 2px solid #28A745 !important; border-radius: 6px !important; padding: 10px !important; }}
     
@@ -87,6 +99,20 @@ st.markdown(f"""
     /* Excluir (X) */
     div.element-container:has(.btn-exc-hook) + div button {{ background-color: #DC3545 !important; border-radius: 6px !important; border: none !important; }}
     div.element-container:has(.btn-exc-hook) + div button p {{ color: #FFFFFF !important; font-weight: 900 !important; font-size: 16px !important; }}
+
+    /* === BOTÕES DO PAINEL DE EDIÇÃO (Salvar Modificações / Cancelar) === */
+    div.element-container:has(.btn-salvar-edit) + div button {{ background-color: #198754 !important; border: none !important; border-radius: 6px !important; padding: 8px !important; }}
+    div.element-container:has(.btn-salvar-edit) + div button p {{ color: #FFFFFF !important; font-weight: 800 !important; }}
+
+    div.element-container:has(.btn-cancelar-edit) + div button {{ background-color: #6C757D !important; border: none !important; border-radius: 6px !important; padding: 8px !important; }}
+    div.element-container:has(.btn-cancelar-edit) + div button p {{ color: #FFFFFF !important; font-weight: 800 !important; }}
+
+    /* === BOTÕES DO PAINEL DE EXCLUSÃO === */
+    div.element-container:has(.btn-confirma-exc) + div button {{ background-color: #DC3545 !important; border: none !important; border-radius: 6px !important; }}
+    div.element-container:has(.btn-confirma-exc) + div button p {{ color: #FFFFFF !important; font-weight: 800 !important; }}
+
+    div.element-container:has(.btn-cancela-exc) + div button {{ background-color: #6C757D !important; border: none !important; border-radius: 6px !important; }}
+    div.element-container:has(.btn-cancela-exc) + div button p {{ color: #FFFFFF !important; font-weight: 800 !important; }}
 
     /* Abas */
     .stTabs [data-baseweb="tab-list"] {{ border-bottom: 2px solid #DEE2E6; }}
@@ -225,7 +251,7 @@ with st.container():
                         c3.markdown(f"<strong style='color: #000000;'>CNPJ: {lic.get('cnpj', '-')}</strong><br><small style='color: #868E96;'>Token: <code>{lic.get('token_vinculo')}</code></small>", unsafe_allow_html=True)
                         c4.markdown(f"**{lic.get('tipo_sistema', 'XDRest')}**<br><small style='color: #495057;'>Rest: {lic.get('xd_rest_postos')} | Ord: {lic.get('xd_orders_postos')}</small>", unsafe_allow_html=True)
                         
-                        # STATUS COMO BOTÃO CLICÁVEL E CENTRALIZADO
+                        # STATUS BOTÃO CLICÁVEL
                         if is_bloqueado:
                             c5.markdown('<span class="btn-bloq-hook"></span>', unsafe_allow_html=True)
                             if c5.button("BLOQUEADO", key=f"btn_status_{lic_id}"):
@@ -298,7 +324,6 @@ with st.container():
                                 cur_ord = "Esfiharia (R$ 6/cada)" if "Esfiharia" in lic.get('tipo_xdorders', '') else "Comum (R$ 8/cada)"
                                 e_tord = col_e8.selectbox("Tipo XDOrders", ord_opts, index=ord_opts.index(cur_ord))
                                 
-                                # RESOLVIDO: O erro do NoneType foi corrigido aqui
                                 num_only = num_lic.replace("XDBR.", "") if num_lic and "XDBR." in num_lic else ""
                                 e_nlic = col_e9.text_input("Nº Licença", value=num_only)
 
@@ -307,20 +332,25 @@ with st.container():
                                 e_ord = col_o.number_input("Postos XDOrders", value=int(lic.get('xd_orders_postos', 0)))
                                 
                                 c_ok, c_cc = st.columns(2)
-                                if c_ok.form_submit_button("Salvar Modificações", use_container_width=True):
-                                    num_formatado = re.sub(r'\D', '', e_nlic).zfill(6)
-                                    up_data = {
-                                        "nome_fantasia": e_nome, "nome_empresarial": e_razao, "cnpj": e_cnpj, "endereco": e_end,
-                                        "cidade": e_cid, "estado": e_est, "tipo_sistema": e_sys, "numero_licenca": f"XDBR.{num_formatado}",
-                                        "xd_rest_postos": e_rest, "xd_orders_postos": e_ord, "tipo_xdorders": "Esfiharia" if "Esfiharia" in e_tord else "Comum"
-                                    }
-                                    requests.patch(f"{URL_SUPABASE}/licencas?id=eq.{lic_id}", json=up_data, headers=HEADERS)
-                                    st.session_state["acao_painel"][lic_id] = None
-                                    st.rerun()
-                                    
-                                if c_cc.form_submit_button("Cancelar", use_container_width=True):
-                                    st.session_state["acao_painel"][lic_id] = None
-                                    st.rerun()
+                                
+                                with c_ok:
+                                    st.markdown('<span class="btn-salvar-edit"></span>', unsafe_allow_html=True)
+                                    if st.form_submit_button("Salvar Modificações", use_container_width=True):
+                                        num_formatado = re.sub(r'\D', '', e_nlic).zfill(6)
+                                        up_data = {
+                                            "nome_fantasia": e_nome, "nome_empresarial": e_razao, "cnpj": e_cnpj, "endereco": e_end,
+                                            "cidade": e_cid, "estado": e_est, "tipo_sistema": e_sys, "numero_licenca": f"XDBR.{num_formatado}",
+                                            "xd_rest_postos": e_rest, "xd_orders_postos": e_ord, "tipo_xdorders": "Esfiharia" if "Esfiharia" in e_tord else "Comum"
+                                        }
+                                        requests.patch(f"{URL_SUPABASE}/licencas?id=eq.{lic_id}", json=up_data, headers=HEADERS)
+                                        st.session_state["acao_painel"][lic_id] = None
+                                        st.rerun()
+                                        
+                                with c_cc:
+                                    st.markdown('<span class="btn-cancelar-edit"></span>', unsafe_allow_html=True)
+                                    if st.form_submit_button("Cancelar", use_container_width=True):
+                                        st.session_state["acao_painel"][lic_id] = None
+                                        st.rerun()
 
                         # EXCLUSÃO
                         if acao == "del":
@@ -328,15 +358,21 @@ with st.container():
                                 st.warning(f"Excluir definitivamente a licença de {lic.get('nome_fantasia')}?")
                                 pwd = st.text_input("Senha Admin:", type="password")
                                 c_ok, c_cc = st.columns(2)
-                                if c_ok.form_submit_button("Confirmar Exclusão"):
-                                    if pwd == SENHA_EXCLUSAO:
-                                        requests.delete(f"{URL_SUPABASE}/licencas?id=eq.{lic_id}", headers=HEADERS)
+                                
+                                with c_ok:
+                                    st.markdown('<span class="btn-confirma-exc"></span>', unsafe_allow_html=True)
+                                    if st.form_submit_button("Confirmar Exclusão", use_container_width=True):
+                                        if pwd == SENHA_EXCLUSAO:
+                                            requests.delete(f"{URL_SUPABASE}/licencas?id=eq.{lic_id}", headers=HEADERS)
+                                            st.session_state["acao_painel"][lic_id] = None
+                                            st.rerun()
+                                        else: st.error("Senha Incorreta!")
+                                        
+                                with c_cc:
+                                    st.markdown('<span class="btn-cancela-exc"></span>', unsafe_allow_html=True)
+                                    if st.form_submit_button("Cancelar", use_container_width=True):
                                         st.session_state["acao_painel"][lic_id] = None
                                         st.rerun()
-                                    else: st.error("Senha Incorreta!")
-                                if c_cc.form_submit_button("Cancelar"):
-                                    st.session_state["acao_painel"][lic_id] = None
-                                    st.rerun()
 
                         st.markdown("<hr style='margin: 0; border-color: #E9ECEF;'>", unsafe_allow_html=True)
             else: st.info("Nenhuma licença cadastrada.")
