@@ -2,10 +2,9 @@ import streamlit as st
 from supabase import create_client, Client
 import uuid
 
-# Configurações do Supabase
+# Dados de conexão do Supabase
 URL_SUPABASE = "https://tlvftsotimyzcufyqixn.supabase.co"
-# Usando a Secret Key para garantir acesso total de escrita/leitura no Painel
-CHAVE_SUPABASE = "sb_secret_r-dQsIIou2_hJ71yFs-TVg_8KpgJuF-"
+CHAVE_SUPABASE = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRsdmZ0c290aW15emN1ZnlxaXhuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MDM3MjAyNiwiZXhwIjoyMTA1OTQ4MDI2fQ.6g_GK338hpKaOOp--31cMdRKO4TG74MP3T2qilZcQ7Q"
 
 @st.cache_resource
 def init_connection():
