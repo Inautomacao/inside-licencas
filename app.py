@@ -2,13 +2,18 @@ import streamlit as st
 from supabase import create_client, Client
 import uuid
 
-# Dados de conexão do Supabase
+# Configurações do Supabase
 URL_SUPABASE = "https://tlvftsotimyzcufyqixn.supabase.co"
 CHAVE_SUPABASE = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRsdmZ0c290aW15emN1ZnlxaXhuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MDM3MjAyNiwiZXhwIjoyMTA1OTQ4MDI2fQ.6g_GK338hpKaOOp--31cMdRKO4TG74MP3T2qilZcQ7Q"
 
 @st.cache_resource
 def init_connection():
-    return create_client(URL_SUPABASE, CHAVE_SUPABASE)
+    # Passa as chaves e força os headers HTTP para evitar rejeição no PostgREST
+    headers = {
+        "apiKey": CHAVE_SUPABASE,
+        "Authorization": f"Bearer {CHAVE_SUPABASE}"
+    }
+    return create_client(URL_SUPABASE, CHAVE_SUPABASE, options={"headers": headers})
 
 try:
     supabase: Client = init_connection()
