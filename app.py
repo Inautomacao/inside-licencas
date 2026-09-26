@@ -1,25 +1,17 @@
 import streamlit as st
-from supabase import create_client, Client
+import requests
 import uuid
 
 # Configurações do Supabase
-URL_SUPABASE = "https://tlvftsotimyzcufyqixn.supabase.co"
+URL_SUPABASE = "https://tlvftsotimyzcufyqixn.supabase.co/rest/v1"
 CHAVE_SUPABASE = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRsdmZ0c290aW15emN1ZnlxaXhuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MDM3MjAyNiwiZXhwIjoyMTA1OTQ4MDI2fQ.6g_GK338hpKaOOp--31cMdRKO4TG74MP3T2qilZcQ7Q"
 
-@st.cache_resource
-def init_connection():
-    # Passa as chaves e força os headers HTTP para evitar rejeição no PostgREST
-    headers = {
-        "apiKey": CHAVE_SUPABASE,
-        "Authorization": f"Bearer {CHAVE_SUPABASE}"
-    }
-    return create_client(URL_SUPABASE, CHAVE_SUPABASE, options={"headers": headers})
-
-try:
-    supabase: Client = init_connection()
-except Exception as e:
-    st.error(f"Erro ao conectar com o Supabase: {e}")
-    st.stop()
+HEADERS = {
+    "apikey": CHAVE_SUPABASE,
+    "Authorization": f"Bearer {CHAVE_SUPABASE}",
+    "Content-Type": "application/json",
+    "Prefer": "return=representation"
+}
 
 st.set_page_config(page_title="INSIDE AUTOMAÇÃO - Licenças", layout="wide")
 st.title("🛡️ Controle de Licenças - INSIDE AUTOMAÇÃO")
@@ -48,46 +40,50 @@ with tab2:
             if not nome_fantasia:
                 st.warning("Por favor, preencha pelo menos o Nome Fantasia.")
             else:
-                try:
-                    dados = {
-                        "token_vinculo": token_gerado,
-                        "nome_fantasia": nome_fantasia,
-                        "nome_empresarial": nome_empresarial,
-                        "cnpj": cnpj,
-                        "estado": estado,
-                        "cidade": cidade,
-                        "endereco": endereco,
-                        "xd_rest_postos": int(xd_rest),
-                        "xd_orders_postos": int(xd_orders),
-                        "bloqueado": False
-                    }
-                    supabase.table("licencas").insert(dados).execute()
+                dados = {
+                    "token_vinculo": token_gerado,
+                    "nome_fantasia": nome_fantasia,
+                    "nome_empresarial": nome_empresarial,
+                    "cnpj": cnpj,
+                    "estado": estado,
+                    "cidade": cidade,
+                    "endereco": endereco,
+                    "xd_rest_postos": int(xd_rest),
+                    "xd_orders_postos": int(xd_orders),
+                    "bloqueado": False
+                }
+                res = requests.post(f"{URL_SUPABASE}/licencas", json=dados, headers=HEADERS)
+                if res.status_code in [200, 201]:
                     st.success(f"Licença criada com sucesso! O Token do cliente é: {token_gerado}")
                     st.rerun()
-                except Exception as e:
-                    st.error(f"Erro ao salvar licença: {e}")
+                else:
+                    st.error(f"Erro ao salvar licença: {res.text}")
 
 with tab1:
     st.subheader("Gerenciar Clientes")
-    try:
-        resposta = supabase.table("licencas").select("*").execute()
-        licencas = resposta.data
-        
+    res = requests.get(f"{URL_SUPABASE}/licencas?select=*", headers=HEADERS)
+    
+    if res.status_code == 200:
+        licencas = res.json()
         if licencas:
             for licenca in licencas:
-                with st.expander(f"{licenca['nome_fantasia']} - Token: {licenca['token_vinculo']}"):
-                    st.write(f"**CNPJ:** {licenca['cnpj']} | **Cidade:** {licenca['cidade']}/{licenca['estado']}")
-                    st.write(f"**XDRest:** {licenca['xd_rest_postos']} postos | **XDOrders:** {licenca['xd_orders_postos']} postos")
+                with st.expander(f"{licenca.get('nome_fantasia')} - Token: {licenca.get('token_vinculo')}"):
+                    st.write(f"**CNPJ:** {licenca.get('cnpj')} | **Cidade:** {licenca.get('cidade')}/{licenca.get('estado')}")
+                    st.write(f"**XDRest:** {licenca.get('xd_rest_postos')} postos | **XDOrders:** {licenca.get('xd_orders_postos')} postos")
                     
-                    status_atual = licenca['bloqueado']
+                    status_atual = licenca.get('bloqueado', False)
                     cor_status = "🔴 BLOQUEADO" if status_atual else "🟢 ATIVO"
                     st.write(f"**Status Atual:** {cor_status}")
                     
-                    if st.button("Alternar Bloqueio / Liberar", key=licenca['id']):
+                    if st.button("Alternar Bloqueio / Liberar", key=licenca.get('id')):
                         novo_status = not status_atual
-                        supabase.table("licencas").update({"bloqueado": novo_status}).eq("id", licenca['id']).execute()
-                        st.rerun()
+                        url_update = f"{URL_SUPABASE}/licencas?id=eq.{licenca.get('id')}"
+                        res_up = requests.patch(url_update, json={"bloqueado": novo_status}, headers=HEADERS)
+                        if res_up.status_code in [200, 204]:
+                            st.rerun()
+                        else:
+                            st.error(f"Erro ao atualizar status: {res_up.text}")
         else:
             st.info("Nenhuma licença cadastrada no momento.")
-    except Exception as e:
-        st.error(f"Erro ao carregar licenças do banco: {e}")
+    else:
+        st.error(f"Erro ao carregar licenças do banco: {res.text}")
