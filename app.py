@@ -38,7 +38,7 @@ bg_css = f"""
     background-attachment: fixed;
 """ if fundo_b64 else "background-color: #0E0F12;"
 
-# Aplicação de Estilos CSS com Força Máxima (Preto nos Textos)
+# Aplicação de Estilos CSS com Força Máxima (Preto nos Textos e Botões Fortes)
 st.markdown(f"""
 <style>
     /* Fundo Geral da Página */
@@ -66,7 +66,7 @@ st.markdown(f"""
         margin-bottom: 30px !important;
     }}
 
-    /* FORÇAR FONTE PRETA EM TODOS OS TEXTOS DO STREAMLIT */
+    /* FORÇAR FONTE PRETA EM TODOS OS TEXTOS DO QUADRO */
     .main-white-card *, 
     .stMarkdown, .stMarkdown p, .stMarkdown span, .stMarkdown strong,
     label, p, span, h1, h2, h3, h4, h5, h6, caption {{
@@ -76,7 +76,7 @@ st.markdown(f"""
     /* Título Licenças DENTRO do Quadro Branco */
     .inner-title {{
         font-size: 30px !important;
-        font-weight: 800 !important;
+        font-weight: 900 !important;
         color: #000000 !important;
         margin-bottom: 15px;
         border-bottom: 2px solid #DEE2E6;
@@ -111,7 +111,7 @@ st.markdown(f"""
     .stTabs [data-baseweb="tab"] p, 
     .stTabs [data-baseweb="tab"] span {{
         color: #212529 !important;
-        font-weight: 700 !important;
+        font-weight: 800 !important;
     }}
     .stTabs [aria-selected="true"] {{
         background-color: #FF8C00 !important;
@@ -122,78 +122,45 @@ st.markdown(f"""
         color: #FFFFFF !important;
     }}
 
-    /* BADGES DE STATUS */
-    .badge-status {{
-        padding: 6px 14px;
-        border-radius: 20px;
-        font-weight: 800;
-        font-size: 12px;
-        display: inline-block;
-        text-align: center;
-    }}
-    .status-ativo {{
-        background-color: #E6F4EA !important;
-        color: #137333 !important;
-        border: 1px solid #CEEAD6 !important;
-    }}
-    .status-bloqueado {{
-        background-color: #FCE8E6 !important;
-        color: #C5221F !important;
-        border: 1px solid #FAD2CF !important;
-    }}
-
-    /* BOTÕES DA TABELA - CORES DE DESTAQUE COM LETRA BRANCA */
+    /* === CORES FORTES E NÍTIDAS PARA OS BOTÕES DA TABELA === */
     
-    /* 1. Botão Bloquear / Liberar */
-    div.stButton > button[key*="btn_bloqueio_"] {{
-        background-color: #212529 !important;
-        border: none !important;
+    /* 1. Botão Bloquear / Liberar (Coluna 6) */
+    div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(6) div.stButton > button {{
+        background-color: #1A1D20 !important;
+        border: 2px solid #000000 !important;
         border-radius: 6px !important;
-        padding: 6px 12px !important;
     }}
-    div.stButton > button[key*="btn_bloqueio_"] *, 
-    div.stButton > button[key*="btn_bloqueio_"] p, 
-    div.stButton > button[key*="btn_bloqueio_"] span {{
+    div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(6) div.stButton > button p {{
         color: #FFFFFF !important;
-        font-weight: bold !important;
-        font-size: 13px !important;
+        font-weight: 900 !important;
+        font-size: 14px !important;
     }}
-    div.stButton > button[key*="btn_bloqueio_"]:hover {{
+    div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(6) div.stButton > button:hover {{
         background-color: #FF8C00 !important;
     }}
 
-    /* 2. Botão Informações (i) */
-    div.stButton > button[key*="btn_info_"] {{
+    /* 2. Botão Informação "i" (Coluna 7 -> Subcoluna 1) */
+    div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(7) div[data-testid="column"]:nth-child(1) div.stButton > button {{
         background-color: #0D6EFD !important;
-        border: none !important;
+        border: 2px solid #0A58CA !important;
         border-radius: 6px !important;
     }}
-    div.stButton > button[key*="btn_info_"] *, 
-    div.stButton > button[key*="btn_info_"] p, 
-    div.stButton > button[key*="btn_info_"] span {{
+    div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(7) div[data-testid="column"]:nth-child(1) div.stButton > button p {{
         color: #FFFFFF !important;
         font-weight: 900 !important;
-        font-size: 15px !important;
-    }}
-    div.stButton > button[key*="btn_info_"]:hover {{
-        background-color: #0B5ED7 !important;
+        font-size: 16px !important;
     }}
 
-    /* 3. Botão Excluir (X) */
-    div.stButton > button[key*="btn_exc_"] {{
+    /* 3. Botão Excluir "X" (Coluna 7 -> Subcoluna 2) */
+    div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(7) div[data-testid="column"]:nth-child(2) div.stButton > button {{
         background-color: #DC3545 !important;
-        border: none !important;
+        border: 2px solid #B02A37 !important;
         border-radius: 6px !important;
     }}
-    div.stButton > button[key*="btn_exc_"] *, 
-    div.stButton > button[key*="btn_exc_"] p, 
-    div.stButton > button[key*="btn_exc_"] span {{
+    div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(7) div[data-testid="column"]:nth-child(2) div.stButton > button p {{
         color: #FFFFFF !important;
         font-weight: 900 !important;
-        font-size: 15px !important;
-    }}
-    div.stButton > button[key*="btn_exc_"]:hover {{
-        background-color: #BB2D3B !important;
+        font-size: 16px !important;
     }}
 </style>
 """, unsafe_allow_html=True)
@@ -341,7 +308,7 @@ with st.container():
             if licencas:
                 busca = st.text_input("Procurar por Cliente, Razão Social, CNPJ, Token ou Nº da Licença:", placeholder="Digite para pesquisar...")
                 
-                # Cabeçalho da Tabela (Preto e em Negrito)
+                # Cabeçalho da Tabela
                 col_t1, col_t2, col_t3, col_t4, col_t5, col_t6, col_t7 = st.columns([1.5, 2.2, 1.8, 1.3, 1.1, 1.3, 1.2])
                 col_t1.markdown("<strong style='color: #000000;'>Nº Licença</strong>", unsafe_allow_html=True)
                 col_t2.markdown("<strong style='color: #000000;'>Cliente / Razão Social</strong>", unsafe_allow_html=True)
@@ -387,11 +354,12 @@ with st.container():
                         c3.markdown(f"<span style='color: #000000; font-weight: bold; font-family: monospace;'>{lic.get('token_vinculo')}</span><br><small style='color: #495057;'>CNPJ: {lic.get('cnpj', '-')}</small>", unsafe_allow_html=True)
                         c4.markdown(f"<strong style='color: #000000;'>{sys_tipo}</strong><br><small style='color: #495057;'>Rest: {lic.get('xd_rest_postos')} | Ord: {lic.get('xd_orders_postos')}</small>", unsafe_allow_html=True)
                         
+                        # APLICAÇÃO DE CORES FORTES E PURAS NO STATUS (Ignorando qualquer bloqueio de tema)
                         if is_bloqueado:
-                            c5.markdown('<span class="badge-status status-bloqueado">BLOQUEADO</span>', unsafe_allow_html=True)
+                            c5.markdown('<div style="background-color: #FF0000; color: #FFFFFF; font-weight: 900; padding: 6px 14px; border-radius: 20px; font-size: 13px; text-align: center; box-shadow: 0px 4px 6px rgba(0,0,0,0.2);">BLOQUEADO</div>', unsafe_allow_html=True)
                             btn_label = "LIBERAR"
                         else:
-                            c5.markdown('<span class="badge-status status-ativo">ATIVO</span>', unsafe_allow_html=True)
+                            c5.markdown('<div style="background-color: #00C851; color: #FFFFFF; font-weight: 900; padding: 6px 14px; border-radius: 20px; font-size: 13px; text-align: center; box-shadow: 0px 4px 6px rgba(0,0,0,0.2);">ATIVO</div>', unsafe_allow_html=True)
                             btn_label = "BLOQUEAR"
                             
                         if c6.button(btn_label, key=f"btn_bloqueio_{lic_id}"):
@@ -412,27 +380,30 @@ with st.container():
                             st.session_state["confirmar_exclusao"] = lic_id
                             st.rerun()
 
-                        # Painel de Informações Detalhadas
+                        # Painel de Informações Detalhadas (FUNDO CLARO COM LETRAS 100% PRETAS)
                         if st.session_state.get("ver_info") == lic_id:
-                            st.info(f"""
-                            **Informações Detalhadas do Cliente**
-                            
-                            * **Nº da Licença:** `{num_lic}`
-                            * **Tipo de Sistema:** {sys_tipo}
-                            * **Nome Fantasia:** {lic.get('nome_fantasia')}
-                            * **Razão Social:** {lic.get('nome_empresarial', '-')}
-                            * **CNPJ:** {lic.get('cnpj', '-')}
-                            * **Endereço Completo:** {lic.get('endereco', '-')}
-                            * **Cidade / UF:** {lic.get('cidade', '-')}/{lic.get('estado', '-')}
-                            * **Postos Liberados:** XDRest: {lic.get('xd_rest_postos')} | XDOrders: {lic.get('xd_orders_postos')}
-                            * **Token de Vínculo:** `{lic.get('token_vinculo')}`
-                            * **Status do Sistema:** {"BLOQUEADO" if is_bloqueado else "ATIVO"}
-                            """)
+                            st.markdown(f"""
+                            <div style="background-color: #F8F9FA; padding: 20px; border-radius: 8px; border: 1px solid #CED4DA; margin-top: 10px;">
+                                <h4 style="color: #000000; margin-top: 0;">Informações Detalhadas do Cliente</h4>
+                                <ul style="color: #000000; font-size: 15px; font-weight: 500; line-height: 1.8;">
+                                    <li><strong style="color: #000000;">Nº da Licença:</strong> {num_lic}</li>
+                                    <li><strong style="color: #000000;">Tipo de Sistema:</strong> {sys_tipo}</li>
+                                    <li><strong style="color: #000000;">Nome Fantasia:</strong> {lic.get('nome_fantasia')}</li>
+                                    <li><strong style="color: #000000;">Razão Social:</strong> {lic.get('nome_empresarial', '-')}</li>
+                                    <li><strong style="color: #000000;">CNPJ:</strong> {lic.get('cnpj', '-')}</li>
+                                    <li><strong style="color: #000000;">Endereço Completo:</strong> {lic.get('endereco', '-')}</li>
+                                    <li><strong style="color: #000000;">Cidade / UF:</strong> {lic.get('cidade', '-')}/{lic.get('estado', '-')}</li>
+                                    <li><strong style="color: #000000;">Postos Liberados:</strong> XDRest: {lic.get('xd_rest_postos')} | XDOrders: {lic.get('xd_orders_postos')}</li>
+                                    <li><strong style="color: #000000;">Token de Vínculo:</strong> <code>{lic.get('token_vinculo')}</code></li>
+                                    <li><strong style="color: #000000;">Status do Sistema:</strong> {"BLOQUEADO" if is_bloqueado else "ATIVO"}</li>
+                                </ul>
+                            </div>
+                            """, unsafe_allow_html=True)
 
-                        # Modal de Exclusão
+                        # Modal de Exclusão (FUNDO CLARO COM LETRAS PRETAS)
                         if st.session_state.get("confirmar_exclusao") == lic_id:
                             with st.form(key=f"form_excluir_{lic_id}"):
-                                st.warning(f"Confirma a exclusão da licença {num_lic} de {lic.get('nome_fantasia')}?")
+                                st.markdown(f"<h4 style='color: #000000;'>Confirma a exclusão da licença {num_lic} de {lic.get('nome_fantasia')}?</h4>", unsafe_allow_html=True)
                                 pwd_input = st.text_input("Senha de Administrador:", type="password")
                                 
                                 col_f1, col_f2 = st.columns(2)
