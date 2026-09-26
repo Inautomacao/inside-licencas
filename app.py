@@ -21,7 +21,7 @@ SENHA_EXCLUSAO = "78592121"
 # Configuração da Página
 st.set_page_config(page_title="INSIDE AUTOMAÇÃO - Licenças", layout="wide", page_icon="🛡️")
 
-# Função para converter imagem local para base64 e usar no CSS do fundo
+# Converter imagem local para base64
 def get_base64_image(image_path):
     if os.path.exists(image_path):
         with open(image_path, "rb") as img_file:
@@ -41,62 +41,81 @@ bg_css = f"""
 # Aplicação de Estilos CSS Personalizados
 st.markdown(f"""
 <style>
-    /* Aplicação do Fundo Customizado na Página */
+    /* Fundo Geral da Página */
     .stApp {{
         {bg_css}
-        color: #FFFFFF;
     }}
-    
-    /* Centralização do Logo */
+
+    /* Centralização da Logo */
     .logo-header {{
         display: flex;
-        flex-direction: column;
-        align-items: center;
         justify-content: center;
+        align-items: center;
         width: 100%;
-        margin-top: 10px;
-        margin-bottom: 10px;
+        margin-top: 15px;
+        margin-bottom: 5px;
     }}
     
     /* Título Licenças */
     .main-title {{
         text-align: center;
         font-size: 38px;
-        font-weight: 700;
+        font-weight: 800;
         color: #FFFFFF;
-        margin-top: 10px;
+        margin-top: 5px;
         margin-bottom: 20px;
-        letter-spacing: -0.5px;
-        text-shadow: 0px 2px 10px rgba(0, 0, 0, 0.8);
-    }}
-    
-    /* Container Principal Branco/Claro Isolado para a Tabela e Abas */
-    .main-container-box {{
-        background-color: #FFFFFF;
-        color: #1A1D20;
-        border-radius: 12px;
-        padding: 25px;
-        box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.5);
-        margin-top: 10px;
+        text-shadow: 0px 2px 8px rgba(0,0,0,0.8);
     }}
 
-    /* Estilo das Abas no Container Branco */
+    /* QUADRO BRANCO SÓLIDO (Estilo Portal XD) */
+    div[data-testid="stVerticalBlock"] > div.element-container:has(div.box-branco) + div,
+    .main-white-card {{
+        background-color: #FFFFFF !important;
+        border-radius: 8px !important;
+        padding: 30px !important;
+        box-shadow: 0px 10px 25px rgba(0,0,0,0.5) !important;
+        margin-bottom: 30px !important;
+    }}
+
+    /* Forçar cores escuras e legíveis para todos os textos dentro do painel */
+    .stMarkdown, p, span, label, h1, h2, h3, h4, h5, h6, div {{
+        color: #1A1D20 !important;
+    }}
+    
+    /* Exceção para o título principal fora do quadro */
+    .main-title {{
+        color: #FFFFFF !important;
+    }}
+
+    /* Inputs e Caixas de Texto Legíveis */
+    input, select, textarea {{
+        background-color: #F8F9FA !important;
+        color: #1A1D20 !important;
+        border: 1px solid #CED4DA !important;
+        border-radius: 4px !important;
+    }}
+
+    /* Estilo das Abas */
     .stTabs [data-baseweb="tab-list"] {{
-        gap: 8px;
+        gap: 5px;
+        border-bottom: 2px solid #DEE2E6;
     }}
     .stTabs [data-baseweb="tab"] {{
-        background-color: #E2E8F0;
-        border-radius: 6px 6px 0px 0px;
-        padding: 10px 22px;
-        color: #475569;
-        font-weight: 600;
+        background-color: #E9ECEF !important;
+        border-radius: 6px 6px 0px 0px !important;
+        padding: 10px 20px !important;
+        color: #495057 !important;
+        font-weight: 600 !important;
     }}
     .stTabs [aria-selected="true"] {{
         background-color: #FF8C00 !important;
         color: #FFFFFF !important;
     }}
+    .stTabs [aria-selected="true"] span {{
+        color: #FFFFFF !important;
+    }}
 
-    /* Badges de Status Modernos */
+    /* Badges de Status */
     .badge-status {{
         padding: 6px 14px;
         border-radius: 20px;
@@ -106,28 +125,31 @@ st.markdown(f"""
         text-align: center;
     }}
     .status-ativo {{
-        background-color: #E6F4EA;
-        color: #137333;
-        border: 1px solid #CEEAD6;
+        background-color: #E6F4EA !important;
+        color: #137333 !important;
+        border: 1px solid #CEEAD6 !important;
     }}
     .status-bloqueado {{
-        background-color: #FCE8E6;
-        color: #C5221F;
-        border: 1px solid #FAD2CF;
+        background-color: #FCE8E6 !important;
+        color: #C5221F !important;
+        border: 1px solid #FAD2CF !important;
     }}
 
-    /* Botão de Excluir estilizado com 'X' em Vermelho */
+    /* Botão de Excluir estilizado com 'X' Vermelho */
     div.stButton > button[key*="btn_exc_"] {{
         background-color: #FCE8E6 !important;
         color: #D32F2F !important;
         border: 1px solid #F5C6CB !important;
-        font-weight: 800 !important;
+        font-weight: 900 !important;
         font-size: 14px !important;
-        border-radius: 6px !important;
+        border-radius: 4px !important;
         padding: 2px 10px !important;
     }}
     div.stButton > button[key*="btn_exc_"]:hover {{
         background-color: #D32F2F !important;
+        color: #FFFFFF !important;
+    }}
+    div.stButton > button[key*="btn_exc_"]:hover span {{
         color: #FFFFFF !important;
     }}
 
@@ -137,16 +159,12 @@ st.markdown(f"""
         border: 1px solid #AECBFA !important;
         font-weight: bold !important;
         font-size: 13px !important;
-        border-radius: 6px !important;
-    }}
-    div.stButton > button[key*="btn_info_"]:hover {{
-        background-color: #1A73E8 !important;
-        color: #FFFFFF !important;
+        border-radius: 4px !important;
     }}
 </style>
 """, unsafe_allow_html=True)
 
-# Logo Perfeitamente Centralizada
+# Logo Centralizada
 st.markdown('<div class="logo-header">', unsafe_allow_html=True)
 col_l1, col_l2, col_l3 = st.columns([1, 2, 1])
 with col_l2:
@@ -161,13 +179,17 @@ st.markdown('</div>', unsafe_allow_html=True)
 # Título Licenças
 st.markdown('<div class="main-title">Licenças</div>', unsafe_allow_html=True)
 
-# Bloco de Conteúdo Branco (Separado do Fundo.png)
+# Marcador para envolver o container em fundo branco
+st.markdown('<div class="box-branco"></div>', unsafe_allow_html=True)
+
 with st.container():
+    st.markdown('<div class="main-white-card">', unsafe_allow_html=True)
+    
     tab1, tab2 = st.tabs(["Licenças Cadastradas", "+ Cadastrar Nova Licença"])
 
     # ABA 2: CADASTRO DE NOVA LICENÇA
     with tab2:
-        st.markdown("<h3 style='color: #1A1D20;'>Nova Licença de Sistema</h3>", unsafe_allow_html=True)
+        st.markdown("### Nova Licença de Sistema")
         
         if "cnpj_dados" not in st.session_state:
             st.session_state["cnpj_dados"] = {}
@@ -213,12 +235,12 @@ with st.container():
         d_cnpj = st.session_state["cnpj_dados"]
         
         with st.form("form_nova_licenca", clear_on_submit=True):
-            st.markdown("<h4 style='color: #1A1D20;'>Identificação do Cliente</h4>", unsafe_allow_html=True)
+            st.markdown("#### Identificação do Cliente")
             nome_fantasia = st.text_input("Nome Fantasia *", value=d_cnpj.get("fantasia", ""))
             nome_empresarial = st.text_input("Nome Empresarial / Razão Social", value=d_cnpj.get("razao", ""))
             cnpj = st.text_input("CNPJ", value=d_cnpj.get("cnpj", input_cnpj_busca))
             
-            st.markdown("<h4 style='color: #1A1D20;'>Endereço</h4>", unsafe_allow_html=True)
+            st.markdown("#### Endereço")
             endereco = st.text_input("Logradouro e Número", value=d_cnpj.get("endereco", ""))
             col_end1, col_end2 = st.columns(2)
             bairro = col_end1.text_input("Bairro", value=d_cnpj.get("bairro", ""))
@@ -228,7 +250,7 @@ with st.container():
             cidade = col_loc1.text_input("Cidade", value=d_cnpj.get("cidade", ""))
             estado = col_loc2.text_input("Estado (UF)", value=d_cnpj.get("estado", ""))
             
-            st.markdown("<h4 style='color: #1A1D20;'>Configuração da Licença</h4>", unsafe_allow_html=True)
+            st.markdown("#### Configuração da Licença")
             tipo_sistema = st.selectbox("Tipo de Sistema *", ["XDRest", "XDCoffee", "XDDisco"])
             
             col_lic_num, col_r, col_o = st.columns([2, 1, 1])
@@ -286,14 +308,14 @@ with st.container():
                 
                 # Cabeçalho da Tabela
                 col_t1, col_t2, col_t3, col_t4, col_t5, col_t6, col_t7 = st.columns([1.5, 2.2, 1.8, 1.3, 1.1, 1.3, 1.2])
-                col_t1.markdown("<strong style='color: #1A1D20;'>Nº Licença</strong>", unsafe_allow_html=True)
-                col_t2.markdown("<strong style='color: #1A1D20;'>Cliente / Razão Social</strong>", unsafe_allow_html=True)
-                col_t3.markdown("<strong style='color: #1A1D20;'>Token / CNPJ</strong>", unsafe_allow_html=True)
-                col_t4.markdown("<strong style='color: #1A1D20;'>Sistema / Postos</strong>", unsafe_allow_html=True)
-                col_t5.markdown("<strong style='color: #1A1D20;'>Status</strong>", unsafe_allow_html=True)
-                col_t6.markdown("<strong style='color: #1A1D20;'>Ação Bloqueio</strong>", unsafe_allow_html=True)
-                col_t7.markdown("<strong style='color: #1A1D20;'>Opções</strong>", unsafe_allow_html=True)
-                st.markdown("<hr style='margin: 5px 0px 15px 0px; border-color: #E2E8F0;'>", unsafe_allow_html=True)
+                col_t1.markdown("**Nº Licença**")
+                col_t2.markdown("**Cliente / Razão Social**")
+                col_t3.markdown("**Token / CNPJ**")
+                col_t4.markdown("**Sistema / Postos**")
+                col_t5.markdown("**Status**")
+                col_t6.markdown("**Ação Bloqueio**")
+                col_t7.markdown("**Opções**")
+                st.markdown("<hr style='margin: 5px 0px 15px 0px; border-color: #DEE2E6;'>", unsafe_allow_html=True)
 
                 if "confirmar_exclusao" not in st.session_state:
                     st.session_state["confirmar_exclusao"] = None
@@ -326,9 +348,9 @@ with st.container():
                         c1, c2, c3, c4, c5, c6, c7 = st.columns([1.5, 2.2, 1.8, 1.3, 1.1, 1.3, 1.2])
                         
                         c1.markdown(f"<strong style='color: #D97706;'>{num_lic}</strong>", unsafe_allow_html=True)
-                        c2.markdown(f"<strong style='color: #1A1D20;'>{lic.get('nome_fantasia')}</strong><br><small style='color: #64748B;'>{lic.get('nome_empresarial', '-')}</small>", unsafe_allow_html=True)
-                        c3.markdown(f"<code style='color: #0F172A;'>{lic.get('token_vinculo')}</code><br><small style='color: #64748B;'>CNPJ: {lic.get('cnpj', '-')}</small>", unsafe_allow_html=True)
-                        c4.markdown(f"<strong style='color: #1A1D20;'>{sys_tipo}</strong><br><small style='color: #64748B;'>Rest: {lic.get('xd_rest_postos')} | Ord: {lic.get('xd_orders_postos')}</small>", unsafe_allow_html=True)
+                        c2.markdown(f"**{lic.get('nome_fantasia')}**<br><small style='color: #6C757D;'>{lic.get('nome_empresarial', '-')}</small>", unsafe_allow_html=True)
+                        c3.markdown(f"<code style='color: #212529;'>{lic.get('token_vinculo')}</code><br><small style='color: #6C757D;'>CNPJ: {lic.get('cnpj', '-')}</small>", unsafe_allow_html=True)
+                        c4.markdown(f"**{sys_tipo}**<br><small style='color: #6C757D;'>Rest: {lic.get('xd_rest_postos')} | Ord: {lic.get('xd_orders_postos')}</small>", unsafe_allow_html=True)
                         
                         if is_bloqueado:
                             c5.markdown('<span class="badge-status status-bloqueado">BLOQUEADO</span>', unsafe_allow_html=True)
@@ -399,8 +421,10 @@ with st.container():
                                     st.session_state["confirmar_exclusao"] = None
                                     st.rerun()
 
-                        st.markdown("<hr style='margin: 8px 0px; border-color: #E2E8F0;'>", unsafe_allow_html=True)
+                        st.markdown("<hr style='margin: 8px 0px; border-color: #E9ECEF;'>", unsafe_allow_html=True)
             else:
                 st.info("Nenhuma licença cadastrada.")
         else:
             st.error(f"Erro ao ligar ao banco de dados: {res.text}")
+            
+    st.markdown('</div>', unsafe_allow_html=True)
