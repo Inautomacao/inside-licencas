@@ -38,10 +38,10 @@ bg_css = f"""
     background-attachment: fixed;
 """ if fundo_b64 else "background-color: #0E0F12;"
 
-# Estilos CSS
+# Aplicação de Estilos CSS Personalizados
 st.markdown(f"""
 <style>
-    /* Fundo Geral */
+    /* Fundo Geral da Página */
     .stApp {{
         {bg_css}
     }}
@@ -52,41 +52,47 @@ st.markdown(f"""
         justify-content: center;
         align-items: center;
         width: 100%;
-        margin-top: 10px;
-        margin-bottom: 10px;
+        margin-top: 15px;
+        margin-bottom: 5px;
     }}
     
-    /* QUADRO BRANCO SÓLIDO */
+    /* Título Licenças */
+    .main-title {{
+        text-align: center;
+        font-size: 38px;
+        font-weight: 800;
+        color: #FFFFFF;
+        margin-top: 5px;
+        margin-bottom: 20px;
+        text-shadow: 0px 2px 8px rgba(0,0,0,0.8);
+    }}
+
+    /* QUADRO BRANCO SÓLIDO (Estilo Portal XD) */
+    div[data-testid="stVerticalBlock"] > div.element-container:has(div.box-branco) + div,
     .main-white-card {{
         background-color: #FFFFFF !important;
-        border-radius: 10px !important;
+        border-radius: 8px !important;
         padding: 30px !important;
-        box-shadow: 0px 10px 30px rgba(0,0,0,0.6) !important;
+        box-shadow: 0px 10px 25px rgba(0,0,0,0.5) !important;
         margin-bottom: 30px !important;
     }}
 
-    /* Título Licenças Dentro do Retângulo */
-    .inner-title {{
-        text-align: left;
-        font-size: 28px;
-        font-weight: 800;
-        color: #1A1D20 !important;
-        margin-bottom: 20px;
-        border-bottom: 2px solid #E9ECEF;
-        padding-bottom: 10px;
-    }}
-
-    /* Textos Gerais no Retângulo Branco */
-    .main-white-card p, .main-white-card span, .main-white-card label, .main-white-card h1, .main-white-card h2, .main-white-card h3, .main-white-card h4 {{
+    /* Forçar cores escuras e legíveis para todos os textos dentro do painel */
+    .stMarkdown, p, span, label, h1, h2, h3, h4, h5, h6, div {{
         color: #1A1D20 !important;
     }}
+    
+    /* Exceção para o título principal fora do quadro */
+    .main-title {{
+        color: #FFFFFF !important;
+    }}
 
-    /* Inputs Nítidos */
-    .main-white-card input, .main-white-card select {{
-        background-color: #FFFFFF !important;
+    /* Inputs e Caixas de Texto Legíveis */
+    input, select, textarea {{
+        background-color: #F8F9FA !important;
         color: #1A1D20 !important;
         border: 1px solid #CED4DA !important;
-        border-radius: 6px !important;
+        border-radius: 4px !important;
     }}
 
     /* Estilo das Abas */
@@ -103,8 +109,9 @@ st.markdown(f"""
     }}
     .stTabs [aria-selected="true"] {{
         background-color: #FF8C00 !important;
+        color: #FFFFFF !important;
     }}
-    .stTabs [aria-selected="true"] p, .stTabs [aria-selected="true"] span {{
+    .stTabs [aria-selected="true"] span {{
         color: #FFFFFF !important;
     }}
 
@@ -128,54 +135,31 @@ st.markdown(f"""
         border: 1px solid #FAD2CF !important;
     }}
 
-    /* BOTÕES DA TABELA - GARANTINDO VISIBILIDADE E CORES CORRETAS */
-    
-    /* Botão de Bloquear / Liberar */
-    div.stButton > button[key*="btn_bloqueio_"] {{
-        background-color: #212529 !important;
-        border: 1px solid #000000 !important;
-        border-radius: 6px !important;
-    }}
-    div.stButton > button[key*="btn_bloqueio_"] p, 
-    div.stButton > button[key*="btn_bloqueio_"] span {{
-        color: #FFFFFF !important;
-        font-weight: bold !important;
-    }}
-    div.stButton > button[key*="btn_bloqueio_"]:hover {{
-        background-color: #FF8C00 !important;
-        border-color: #FF8C00 !important;
-    }}
-
-    /* Botão Informações (i) */
-    div.stButton > button[key*="btn_info_"] {{
-        background-color: #0D6EFD !important;
-        border: none !important;
-        border-radius: 6px !important;
-    }}
-    div.stButton > button[key*="btn_info_"] p, 
-    div.stButton > button[key*="btn_info_"] span {{
-        color: #FFFFFF !important;
-        font-weight: bold !important;
-        font-size: 14px !important;
-    }}
-    div.stButton > button[key*="btn_info_"]:hover {{
-        background-color: #0B5ED7 !important;
-    }}
-
-    /* Botão Excluir (X) */
+    /* Botão de Excluir estilizado com 'X' Vermelho */
     div.stButton > button[key*="btn_exc_"] {{
-        background-color: #DC3545 !important;
-        border: none !important;
-        border-radius: 6px !important;
-    }}
-    div.stButton > button[key*="btn_exc_"] p, 
-    div.stButton > button[key*="btn_exc_"] span {{
-        color: #FFFFFF !important;
-        font-weight: bold !important;
+        background-color: #FCE8E6 !important;
+        color: #D32F2F !important;
+        border: 1px solid #F5C6CB !important;
+        font-weight: 900 !important;
         font-size: 14px !important;
+        border-radius: 4px !important;
+        padding: 2px 10px !important;
     }}
     div.stButton > button[key*="btn_exc_"]:hover {{
-        background-color: #BB2D3B !important;
+        background-color: #D32F2F !important;
+        color: #FFFFFF !important;
+    }}
+    div.stButton > button[key*="btn_exc_"]:hover span {{
+        color: #FFFFFF !important;
+    }}
+
+    div.stButton > button[key*="btn_info_"] {{
+        background-color: #E8F0FE !important;
+        color: #1A73E8 !important;
+        border: 1px solid #AECBFA !important;
+        font-weight: bold !important;
+        font-size: 13px !important;
+        border-radius: 4px !important;
     }}
 </style>
 """, unsafe_allow_html=True)
@@ -192,12 +176,14 @@ with col_l2:
         st.markdown("<h1 style='text-align: center; color: #FF8C00;'>INSIDE AUTOMAÇÃO</h1>", unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
-# QUADRO BRANCO PRINCIPAL
+# Título Licenças
+st.markdown('<div class="main-title">Licenças</div>', unsafe_allow_html=True)
+
+# Marcador para envolver o container em fundo branco
+st.markdown('<div class="box-branco"></div>', unsafe_allow_html=True)
+
 with st.container():
     st.markdown('<div class="main-white-card">', unsafe_allow_html=True)
-    
-    # Título Movido para dentro do quadro branco
-    st.markdown('<div class="inner-title">Licenças</div>', unsafe_allow_html=True)
     
     tab1, tab2 = st.tabs(["Licenças Cadastradas", "+ Cadastrar Nova Licença"])
 
@@ -363,7 +349,7 @@ with st.container():
                         
                         c1.markdown(f"<strong style='color: #D97706;'>{num_lic}</strong>", unsafe_allow_html=True)
                         c2.markdown(f"**{lic.get('nome_fantasia')}**<br><small style='color: #6C757D;'>{lic.get('nome_empresarial', '-')}</small>", unsafe_allow_html=True)
-                        c3.markdown(f"<span style='color: #212529; font-family: monospace; font-weight: bold;'>{lic.get('token_vinculo')}</span><br><small style='color: #6C757D;'>CNPJ: {lic.get('cnpj', '-')}</small>", unsafe_allow_html=True)
+                        c3.markdown(f"<code style='color: #212529;'>{lic.get('token_vinculo')}</code><br><small style='color: #6C757D;'>CNPJ: {lic.get('cnpj', '-')}</small>", unsafe_allow_html=True)
                         c4.markdown(f"**{sys_tipo}**<br><small style='color: #6C757D;'>Rest: {lic.get('xd_rest_postos')} | Ord: {lic.get('xd_orders_postos')}</small>", unsafe_allow_html=True)
                         
                         if is_bloqueado:
