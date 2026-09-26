@@ -14,6 +14,8 @@ HEADERS = {
     "Prefer": "return=representation"
 }
 
+SENHA_EXCLUSAO = "78592121"
+
 # Configuração da Página
 st.set_page_config(page_title="INSIDE AUTOMAÇÃO - Gestão de Licenças", layout="wide", page_icon="🛡️")
 
@@ -24,16 +26,6 @@ st.markdown("""
     .stApp {
         background-color: #121214;
         color: #E1E1E6;
-    }
-    
-    /* Cabeçalho e Logo */
-    .header-container {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 10px 0px 20px 0px;
-        border-bottom: 2px solid #FF8C00;
-        margin-bottom: 25px;
     }
     
     /* Tabelas e Caixas */
@@ -157,15 +149,21 @@ with tab1:
             busca = st.text_input("🔍 Procurar por Cliente, CNPJ ou Token:", "")
             
             # Cabeçalho da Tabela
-            col_t1, col_t2, col_t3, col_t4, col_t5 = st.columns([2, 1.5, 1.5, 1, 1.2])
+            col_t1, col_t2, col_t3, col_t4, col_t5, col_t6 = st.columns([2, 1.5, 1.5, 1, 1, 1])
             col_t1.markdown("**Cliente / Razão Social**")
             col_t2.markdown("**Token / CNPJ**")
             col_t3.markdown("**Módulos Liberados**")
             col_t4.markdown("**Status**")
-            col_t5.markdown("**Ação Instantânea**")
+            col_t5.markdown("**Ação Bloqueio**")
+            col_t6.markdown("**Excluir Licença**")
             st.markdown("<hr style='margin: 5px 0px 15px 0px; border-color: #323238;'>", unsafe_allow_html=True)
 
+            # Inicializa a chave de confirmação de exclusão na sessão
+            if "confirmar_exclusao" not in st.session_state:
+                st.session_state["confirmar_exclusao"] = None
+
             for lic in licencas:
+                lic_id = lic.get('id')
                 # Aplica o filtro de pesquisa
                 if busca.lower() not in lic.get('nome_fantasia', '').lower() and \
                    busca.lower() not in lic.get('cnpj', '').lower() and \
@@ -173,11 +171,10 @@ with tab1:
                     continue
 
                 is_bloqueado = lic.get('bloqueado', False)
-                classe_card = "card-licenca bloqueado" if is_bloqueado else "card-licenca"
                 
                 # Linha estilo Tabela Interativa
                 with st.container():
-                    c1, c2, c3, c4, c5 = st.columns([2, 1.5, 1.5, 1, 1.2])
+                    c1, c2, c3, c4, c5, c6 = st.columns([2, 1.5, 1.5, 1, 1, 1])
                     
                     c1.markdown(f"**{lic.get('nome_fantasia')}**<br><small style='color: #8D8D99;'>{lic.get('nome_empresarial', '-')}</small>", unsafe_allow_html=True)
                     c2.markdown(f"`{lic.get('token_vinculo')}`<br><small style='color: #8D8D99;'>CNPJ: {lic.get('cnpj', '-')}</small>", unsafe_allow_html=True)
@@ -190,15 +187,48 @@ with tab1:
                         c4.markdown("<span style='color: #00B37E; font-weight: bold;'>🟢 ATIVO</span>", unsafe_allow_html=True)
                         btn_label = "🔒 BLOQUEAR"
                         
-                    if c5.button(btn_label, key=f"btn_{lic.get('id')}"):
+                    # Botão de Alternar Bloqueio
+                    if c5.button(btn_label, key=f"btn_bloqueio_{lic_id}"):
                         novo_status = not is_bloqueado
-                        url_up = f"{URL_SUPABASE}/licencas?id=eq.{lic.get('id')}"
+                        url_up = f"{URL_SUPABASE}/licencas?id=eq.{lic_id}"
                         res_up = requests.patch(url_up, json={"bloqueado": novo_status}, headers=HEADERS)
                         if res_up.status_code in [200, 204]:
                             st.rerun()
                         else:
                             st.error(f"Erro ao alterar status: {res_up.text}")
                     
+                    # Botão de Solicitar Exclusão
+                    if c6.button("🗑️ EXCLUIR", key=f"btn_exc_{lic_id}"):
+                        st.session_state["confirmar_exclusao"] = lic_id
+                        st.rerun()
+
+                    # Caixa de Confirmação com Senha para Exclusão
+                    if st.session_state.get("confirmar_exclusao") == lic_id:
+                        with st.form(key=f"form_excluir_{lic_id}"):
+                            st.warning(f"⚠️ Tem certeza que deseja excluir a licença do cliente **{lic.get('nome_fantasia')}**?")
+                            pwd_input = st.text_input("Digite a senha de administrador para confirmar:", type="password")
+                            
+                            col_f1, col_f2 = st.columns(2)
+                            btn_confirma = col_f1.form_submit_button("Confirmar Exclusão")
+                            btn_cancela = col_f2.form_submit_button("Cancelar")
+                            
+                            if btn_confirma:
+                                if pwd_input == SENHA_EXCLUSAO:
+                                    url_del = f"{URL_SUPABASE}/licencas?id=eq.{lic_id}"
+                                    res_del = requests.delete(url_del, headers=HEADERS)
+                                    if res_del.status_code in [200, 204]:
+                                        st.session_state["confirmar_exclusao"] = None
+                                        st.success("Licença excluída com sucesso!")
+                                        st.rerun()
+                                    else:
+                                        st.error(f"Erro ao excluir: {res_del.text}")
+                                else:
+                                    st.error("Senha incorreta! A exclusão foi cancelada.")
+                            
+                            if btn_cancela:
+                                st.session_state["confirmar_exclusao"] = None
+                                st.rerun()
+
                     st.markdown("<hr style='margin: 8px 0px; border-color: #29292E;'>", unsafe_allow_html=True)
         else:
             st.info("Nenhuma licença cadastrada no sistema.")
