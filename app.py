@@ -4,6 +4,7 @@ import uuid
 import os
 import re
 import base64
+import streamlit.components.v1 as components
 
 # Configurações do Supabase
 URL_SUPABASE = "https://tlvftsotimyzcufyqixn.supabase.co/rest/v1"
@@ -125,6 +126,19 @@ st.markdown('<div class="box-branco"></div>', unsafe_allow_html=True)
 with st.container():
     st.markdown('<div class="inner-title">Licenças</div>', unsafe_allow_html=True)
     
+    # === REDIRECIONAMENTO AUTOMÁTICO APÓS SALVAR ===
+    if st.session_state.get("mudar_aba_lista"):
+        st.success("✅ Licença salva com sucesso!")
+        components.html("""
+            <script>
+                var tabs = window.parent.document.querySelectorAll('button[data-baseweb="tab"]');
+                if (tabs.length > 0) {
+                    tabs[0].click(); // Clica automaticamente na primeira aba (Licenças Cadastradas)
+                }
+            </script>
+        """, height=0)
+        st.session_state["mudar_aba_lista"] = False
+    
     tab1, tab2 = st.tabs(["Licenças Cadastradas", "+ Cadastrar Nova Licença"])
 
     # === ABA DE CADASTRO ===
@@ -243,7 +257,9 @@ with st.container():
                     "desconto": float(cad_desconto), "acrescimo": float(cad_acrescimo),
                     "bloqueado": False
                 }
+                
                 res = requests.post(f"{URL_SUPABASE}/licencas", json=dados, headers=HEADERS)
+                
                 if res.status_code in [200, 201]:
                     chaves_para_limpar = ["cad_nf", "cad_rz", "cad_cnpj", "cad_end", "cad_br", "cad_comp", "cad_cid", "cad_est", "cad_num", "busca_cnpj", "cad_desc", "cad_acresc"]
                     for chave in chaves_para_limpar:
@@ -253,8 +269,11 @@ with st.container():
                     if "cad_rest" in st.session_state: del st.session_state["cad_rest"]
                     if "cad_ord" in st.session_state: del st.session_state["cad_ord"]
                     
-                    st.success("Licença salva com sucesso!")
+                    st.session_state["mudar_aba_lista"] = True # Aciona o redirecionamento na próxima renderização
                     st.rerun()
+                else:
+                    st.error(f"Erro ao salvar no banco de dados: {res.text}")
+                    st.warning("⚠️ DICA: Verifique se você já acessou o Supabase e adicionou as colunas 'desconto' (float/numeric) e 'acrescimo' (float/numeric) na tabela 'licencas'. O erro pode ser esse!")
 
     # === ABA DE GERENCIAMENTO ===
     with tab1:
@@ -408,9 +427,12 @@ with st.container():
                                         "xd_rest_postos": e_rest, "xd_orders_postos": e_ord, "tipo_xdorders": "Esfiharia" if "Esfiharia" in e_tord else "Comum",
                                         "desconto": e_desc, "acrescimo": e_acresc
                                     }
-                                    requests.patch(f"{URL_SUPABASE}/licencas?id=eq.{lic_id}", json=up_data, headers=HEADERS)
-                                    st.session_state["acao_painel"][lic_id] = None
-                                    st.rerun()
+                                    res_edit = requests.patch(f"{URL_SUPABASE}/licencas?id=eq.{lic_id}", json=up_data, headers=HEADERS)
+                                    if res_edit.status_code in [200, 204]:
+                                        st.session_state["acao_painel"][lic_id] = None
+                                        st.rerun()
+                                    else:
+                                        st.error(f"Erro ao salvar: {res_edit.text}")
                                     
                                 if c_cc.form_submit_button("Cancelar", use_container_width=True):
                                     st.session_state["acao_painel"][lic_id] = None
