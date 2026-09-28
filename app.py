@@ -109,7 +109,6 @@ st.markdown(f"""
     .stTabs [data-baseweb="tab"] {{ background-color: #E9ECEF !important; border-radius: 6px 6px 0 0 !important; }}
     .stTabs [aria-selected="true"] {{ background-color: #FF8C00 !important; }}
     .stTabs [aria-selected="true"] p {{ color: #FFFFFF !important; }}
-    code {{ background-color: transparent !important; color: #495057 !important; font-weight: bold !important; font-family: monospace !important; }}
 </style>
 """, unsafe_allow_html=True)
 
@@ -196,36 +195,35 @@ with st.container():
         cad_desconto = col_desc.number_input("Desconto (R$)", min_value=0.0, value=0.0, format="%.2f", key="cad_desc")
         cad_acrescimo = col_acres.number_input("Acréscimo (R$)", min_value=0.0, value=0.0, format="%.2f", key="cad_acresc")
         
-        # CÁLCULO DE VALORES ATUALIZADO (A partir do 2º posto cobra 60)
+        # CÁLCULO DE VALORES
         v_postos = 280.0 + (max(0, int(xd_rest) - 1) * 60.0)
         v_orders = int(xd_orders) * (6.0 if "Esfiharia" in tipo_xdorders else 8.0)
         subtotal = v_postos + v_orders
         total_calc = subtotal + cad_acrescimo - cad_desconto
         
-        st.markdown(f"""
-        <div style="background-color: #E9ECEF; color: #000000; padding: 15px; border-radius: 6px; border: 1px solid #CED4DA;">
-            <h5 style="margin-top: 0; color: #343A40;">Detalhamento da Licença</h5>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                <span>Postos Extra ({int(xd_rest)}):</span> <span>R$ {f'{v_postos:.2f}'.replace('.', ',')}</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                <span>XDOrders ({int(xd_orders)}):</span> <span>R$ {f'{v_orders:.2f}'.replace('.', ',')}</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 4px; border-top: 1px solid #CED4DA; padding-top: 4px; font-weight: bold;">
-                <span>Subtotal:</span> <span>R$ {f'{subtotal:.2f}'.replace('.', ',')}</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 4px; color: #DC3545;">
-                <span>Desconto:</span> <span>- R$ {f'{cad_desconto:.2f}'.replace('.', ',')}</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 4px; color: #198754;">
-                <span>Acréscimo:</span> <span>+ R$ {f'{cad_acrescimo:.2f}'.replace('.', ',')}</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: 900; margin-top: 10px; border-top: 2px solid #ADB5BD; padding-top: 8px;">
-                <span>TOTAL A FATURAR:</span> <span>R$ {f'{total_calc:.2f}'.replace('.', ',')}</span>
-            </div>
-        </div>
-        <br>
-        """, unsafe_allow_html=True)
+        html_cadastro = f"""<div style="background-color: #E9ECEF; color: #000000; padding: 15px; border-radius: 6px; border: 1px solid #CED4DA;">
+<h5 style="margin-top: 0; color: #343A40;">Detalhamento da Licença</h5>
+<div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+<span>Postos Extra ({int(xd_rest)}):</span> <span>R$ {f'{v_postos:.2f}'.replace('.', ',')}</span>
+</div>
+<div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+<span>XDOrders ({int(xd_orders)}):</span> <span>R$ {f'{v_orders:.2f}'.replace('.', ',')}</span>
+</div>
+<div style="display: flex; justify-content: space-between; margin-bottom: 4px; border-top: 1px solid #CED4DA; padding-top: 4px; font-weight: bold;">
+<span>Subtotal:</span> <span>R$ {f'{subtotal:.2f}'.replace('.', ',')}</span>
+</div>
+<div style="display: flex; justify-content: space-between; margin-bottom: 4px; color: #DC3545;">
+<span>Desconto:</span> <span>- R$ {f'{cad_desconto:.2f}'.replace('.', ',')}</span>
+</div>
+<div style="display: flex; justify-content: space-between; margin-bottom: 4px; color: #198754;">
+<span>Acréscimo:</span> <span>+ R$ {f'{cad_acrescimo:.2f}'.replace('.', ',')}</span>
+</div>
+<div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: 900; margin-top: 10px; border-top: 2px solid #ADB5BD; padding-top: 8px;">
+<span>TOTAL A FATURAR:</span> <span>R$ {f'{total_calc:.2f}'.replace('.', ',')}</span>
+</div>
+</div>
+<br>"""
+        st.markdown(html_cadastro, unsafe_allow_html=True)
         
         token_gerado = str(uuid.uuid4()).split('-')[0].upper()
         st.markdown(f"**Token de Vínculo:** `{token_gerado}`", unsafe_allow_html=True)
@@ -331,42 +329,38 @@ with st.container():
                             desc = float(lic.get('desconto') or 0.0)
                             acresc = float(lic.get('acrescimo') or 0.0)
                             
-                            # CÁLCULO DE VALORES ATUALIZADO (A partir do 2º posto cobra 60)
                             v_postos_info = 280.0 + (max(0, qtd_extra - 1) * 60.0)
                             v_orders_info = qtd_ord * (6.0 if "Esfiharia" in tipo_ord else 8.0)
                             subtotal_info = v_postos_info + v_orders_info
                             total_info = subtotal_info + acresc - desc
 
-                            st.markdown(f"""
-                            <div style="background-color: #F8F9FA; padding: 20px; border-radius: 8px; border: 1px solid #CED4DA; margin: 10px 0;">
-                                <h4 style="color: #000; margin-top: 0; margin-bottom: 15px;">Informações de {lic.get('nome_fantasia')}</h4>
-                                
-                                <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-                                    <div style="flex: 1; min-width: 300px;">
-                                        <ul style="color: #000; line-height: 1.8; font-weight: 500; list-style-type: none; padding-left: 0;">
-                                            <li><b>Nº Licença:</b> {num_lic}</li>
-                                            <li><b>Sistema:</b> {lic.get('tipo_sistema', 'XDRest')}</li>
-                                            <li><b>CNPJ:</b> {lic.get('cnpj', '-')}</li>
-                                            <li><b>Endereço:</b> {lic.get('endereco', '-')}</li>
-                                            <li><b>Cidade/UF:</b> {lic.get('cidade', '-')} - {lic.get('estado', '-')}</li>
-                                            <li><b>Postos:</b> Postos Extra ({qtd_extra}) | XDOrders ({qtd_ord})</li>
-                                            <li><b>Tipo XDOrders:</b> {tipo_ord}</li>
-                                            <li><b>Token do PC:</b> <code>{lic.get('token_vinculo')}</code></li>
-                                        </ul>
-                                    </div>
-                                    
-                                    <div style="flex: 1; min-width: 280px; background-color: #E9ECEF; padding: 15px; border-radius: 6px; border: 1px solid #DEE2E6; color: #000;">
-                                        <h5 style="margin-top: 0; border-bottom: 1px solid #CED4DA; padding-bottom: 5px;">Detalhamento Financeiro</h5>
-                                        <div style="display: flex; justify-content: space-between;"><span>Postos Extra ({qtd_extra} un.):</span> <span>R$ {f'{v_postos_info:.2f}'.replace('.', ',')}</span></div>
-                                        <div style="display: flex; justify-content: space-between;"><span>XDOrders ({qtd_ord} un.):</span> <span>R$ {f'{v_orders_info:.2f}'.replace('.', ',')}</span></div>
-                                        <div style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 5px;"><span>Subtotal:</span> <span>R$ {f'{subtotal_info:.2f}'.replace('.', ',')}</span></div>
-                                        <div style="display: flex; justify-content: space-between; color: #DC3545;"><span>Desconto:</span> <span>- R$ {f'{desc:.2f}'.replace('.', ',')}</span></div>
-                                        <div style="display: flex; justify-content: space-between; color: #198754;"><span>Acréscimo:</span> <span>+ R$ {f'{acresc:.2f}'.replace('.', ',')}</span></div>
-                                        <div style="display: flex; justify-content: space-between; font-size: 16px; font-weight: 900; margin-top: 10px; border-top: 2px solid #ADB5BD; padding-top: 5px;"><span>Total da Licença:</span> <span>R$ {f'{total_info:.2f}'.replace('.', ',')}</span></div>
-                                    </div>
-                                </div>
-                            </div>
-                            """, unsafe_allow_html=True)
+                            html_info = f"""<div style="background-color: #F8F9FA; padding: 20px; border-radius: 8px; border: 1px solid #CED4DA; margin: 10px 0;">
+<h4 style="color: #000; margin-top: 0; margin-bottom: 15px;">Informações de {lic.get('nome_fantasia')}</h4>
+<div style="display: flex; gap: 20px; flex-wrap: wrap;">
+<div style="flex: 1; min-width: 300px;">
+<ul style="color: #000; line-height: 1.8; font-weight: 500; list-style-type: none; padding-left: 0;">
+<li><b>Nº Licença:</b> {num_lic}</li>
+<li><b>Sistema:</b> {lic.get('tipo_sistema', 'XDRest')}</li>
+<li><b>CNPJ:</b> {lic.get('cnpj', '-')}</li>
+<li><b>Endereço:</b> {lic.get('endereco', '-')}</li>
+<li><b>Cidade/UF:</b> {lic.get('cidade', '-')} - {lic.get('estado', '-')}</li>
+<li><b>Postos:</b> Postos Extra ({qtd_extra}) | XDOrders ({qtd_ord})</li>
+<li><b>Tipo XDOrders:</b> {tipo_ord}</li>
+<li><b>Token do PC:</b> <code>{lic.get('token_vinculo')}</code></li>
+</ul>
+</div>
+<div style="flex: 1; min-width: 280px; background-color: #E9ECEF; padding: 15px; border-radius: 6px; border: 1px solid #DEE2E6; color: #000;">
+<h5 style="margin-top: 0; border-bottom: 1px solid #CED4DA; padding-bottom: 5px;">Detalhamento Financeiro</h5>
+<div style="display: flex; justify-content: space-between;"><span>Postos Extra ({qtd_extra} un.):</span> <span>R$ {f'{v_postos_info:.2f}'.replace('.', ',')}</span></div>
+<div style="display: flex; justify-content: space-between;"><span>XDOrders ({qtd_ord} un.):</span> <span>R$ {f'{v_orders_info:.2f}'.replace('.', ',')}</span></div>
+<div style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 5px;"><span>Subtotal:</span> <span>R$ {f'{subtotal_info:.2f}'.replace('.', ',')}</span></div>
+<div style="display: flex; justify-content: space-between; color: #DC3545;"><span>Desconto:</span> <span>- R$ {f'{desc:.2f}'.replace('.', ',')}</span></div>
+<div style="display: flex; justify-content: space-between; color: #198754;"><span>Acréscimo:</span> <span>+ R$ {f'{acresc:.2f}'.replace('.', ',')}</span></div>
+<div style="display: flex; justify-content: space-between; font-size: 16px; font-weight: 900; margin-top: 10px; border-top: 2px solid #ADB5BD; padding-top: 5px;"><span>Total da Licença:</span> <span>R$ {f'{total_info:.2f}'.replace('.', ',')}</span></div>
+</div>
+</div>
+</div>"""
+                            st.markdown(html_info, unsafe_allow_html=True)
 
                         if acao == "edit":
                             with st.form(key=f"form_edit_{lic_id}"):
