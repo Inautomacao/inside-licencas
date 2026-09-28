@@ -6,7 +6,7 @@ import re
 import base64
 import streamlit.components.v1 as components
 
-# Configurações do Supabase
+# ================= CONFIGURAÇÕES E CREDENCIAIS =================
 URL_SUPABASE = "https://tlvftsotimyzcufyqixn.supabase.co/rest/v1"
 CHAVE_SUPABASE = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRsdmZ0c290aW15emN1ZnlxaXhuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MDM3MjAyNiwiZXhwIjoyMTA1OTQ4MDI2fQ.6g_GK338hpKaOOp--31cMdRKO4TG74MP3T2qilZcQ7Q"
 
@@ -18,9 +18,12 @@ HEADERS = {
 }
 
 SENHA_EXCLUSAO = "78592121"
+USUARIO_CORRETO = "suporte@insideautomacao.com.br"
+SENHA_CORRETA = "inside@2021#"
 
 st.set_page_config(page_title="INSIDE AUTOMAÇÃO - Licenças", layout="wide")
 
+# ================= FUNÇÕES AUXILIARES =================
 def get_base64_image(image_path):
     if os.path.exists(image_path):
         with open(image_path, "rb") as img_file:
@@ -34,7 +37,7 @@ bg_css = f"""
     background-size: cover; background-position: center; background-attachment: fixed;
 """ if fundo_b64 else "background-color: #0E0F12;"
 
-# ESTILOS CSS FORÇADOS E LIMPOS
+# ESTILOS CSS
 st.markdown(f"""
 <style>
     .stApp {{ {bg_css} }}
@@ -113,12 +116,57 @@ st.markdown(f"""
 </style>
 """, unsafe_allow_html=True)
 
+# ================= SISTEMA DE LOGIN DE SEGURANÇA =================
+if "autenticado" not in st.session_state:
+    st.session_state["autenticado"] = False
+
+def validar_login():
+    email_in = st.session_state.get("login_email", "").strip().lower()
+    senha_in = st.session_state.get("login_senha", "").strip()
+    
+    if email_in == USUARIO_CORRETO and senha_in == SENHA_CORRETA:
+        st.session_state["autenticado"] = True
+    else:
+        st.error("E-mail ou Senha incorretos.")
+
+if not st.session_state["autenticado"]:
+    st.markdown('<div class="logo-header">', unsafe_allow_html=True)
+    c_l1, c_l2, c_l3 = st.columns([1, 1.5, 1])
+    with c_l2:
+        if os.path.exists("logo.jpg"): st.image("logo.jpg", use_container_width=True)
+        elif os.path.exists("logo.png"): st.image("logo.png", use_container_width=True)
+        else: st.markdown("<h1 style='text-align: center; color: #FF8C00;'>INSIDE AUTOMAÇÃO</h1>", unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    st.markdown('<div class="box-branco"></div>', unsafe_allow_html=True)
+    
+    with st.container():
+        col_lg1, col_lg2, col_lg3 = st.columns([1, 1.2, 1])
+        with col_lg2:
+            st.markdown("<h2 style='text-align: center; color: #1A1D20;'>Acesso ao Painel</h2>", unsafe_allow_html=True)
+            st.text_input("E-mail corporativo:", key="login_email", placeholder="Digite seu e-mail...")
+            st.text_input("Senha de acesso:", key="login_senha", type="password", placeholder="Digite sua senha...")
+            st.checkbox("Manter-me conectado neste navegador", value=True, key="login_manter")
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            st.button("ENTRAR NO SISTEMA", use_container_width=True, on_click=validar_login)
+    
+    st.stop() # Interrompe a execução aqui para não carregar o sistema sem estar logado
+
+# ================= PAINEL PRINCIPAL (AUTENTICADO) =================
 st.markdown('<div class="logo-header">', unsafe_allow_html=True)
 col_l1, col_l2, col_l3 = st.columns([1, 2, 1])
 with col_l2:
     if os.path.exists("logo.jpg"): st.image("logo.jpg", use_container_width=True)
     elif os.path.exists("logo.png"): st.image("logo.png", use_container_width=True)
     else: st.markdown("<h1 style='text-align: center; color: #FF8C00;'>INSIDE AUTOMAÇÃO</h1>", unsafe_allow_html=True)
+
+with col_l3:
+    st.markdown("<br>", unsafe_allow_html=True)
+    if st.button("Sair (Logout)", key="btn_logout"):
+        st.session_state["autenticado"] = False
+        st.rerun()
+
 st.markdown('</div>', unsafe_allow_html=True)
 
 st.markdown('<div class="box-branco"></div>', unsafe_allow_html=True)
@@ -126,19 +174,15 @@ st.markdown('<div class="box-branco"></div>', unsafe_allow_html=True)
 with st.container():
     st.markdown('<div class="inner-title">Licenças</div>', unsafe_allow_html=True)
     
-    # === REDIRECIONAMENTO AUTOMÁTICO APÓS SALVAR ===
     if st.session_state.get("mudar_aba_lista"):
-        st.success("✅ Licença salva com sucesso!")
         components.html("""
             <script>
                 var tabs = window.parent.document.querySelectorAll('button[data-baseweb="tab"]');
-                if (tabs.length > 0) {
-                    tabs[0].click(); // Clica automaticamente na primeira aba (Licenças Cadastradas)
-                }
+                if (tabs.length > 0) { tabs[0].click(); }
             </script>
         """, height=0)
         st.session_state["mudar_aba_lista"] = False
-    
+
     tab1, tab2 = st.tabs(["Licenças Cadastradas", "+ Cadastrar Nova Licença"])
 
     # === ABA DE CADASTRO ===
@@ -248,6 +292,7 @@ with st.container():
             else:
                 num_formatado = re.sub(r'\D', '', num_lic_input).zfill(6)
                 end_completo = f"{endereco} - {bairro}".strip(" - ") + (f" ({complemento})" if complemento else "")
+                
                 dados = {
                     "token_vinculo": token_gerado, "numero_licenca": f"XDBR.{num_formatado}",
                     "tipo_sistema": tipo_sistema, "nome_fantasia": nome_fantasia, "nome_empresarial": nome_empresarial,
@@ -260,20 +305,23 @@ with st.container():
                 
                 res = requests.post(f"{URL_SUPABASE}/licencas", json=dados, headers=HEADERS)
                 
+                if res.status_code not in [200, 201]:
+                    dados.pop("desconto", None)
+                    dados.pop("acrescimo", None)
+                    res = requests.post(f"{URL_SUPABASE}/licencas", json=dados, headers=HEADERS)
+
                 if res.status_code in [200, 201]:
                     chaves_para_limpar = ["cad_nf", "cad_rz", "cad_cnpj", "cad_end", "cad_br", "cad_comp", "cad_cid", "cad_est", "cad_num", "busca_cnpj", "cad_desc", "cad_acresc"]
                     for chave in chaves_para_limpar:
-                        if chave in st.session_state:
-                            del st.session_state[chave]
+                        if chave in st.session_state: del st.session_state[chave]
                     
                     if "cad_rest" in st.session_state: del st.session_state["cad_rest"]
                     if "cad_ord" in st.session_state: del st.session_state["cad_ord"]
                     
-                    st.session_state["mudar_aba_lista"] = True # Aciona o redirecionamento na próxima renderização
+                    st.session_state["mudar_aba_lista"] = True
                     st.rerun()
                 else:
-                    st.error(f"Erro ao salvar no banco de dados: {res.text}")
-                    st.warning("⚠️ DICA: Verifique se você já acessou o Supabase e adicionou as colunas 'desconto' (float/numeric) e 'acrescimo' (float/numeric) na tabela 'licencas'. O erro pode ser esse!")
+                    st.error(f"Erro ao salvar: {res.text}")
 
     # === ABA DE GERENCIAMENTO ===
     with tab1:
