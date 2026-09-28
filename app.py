@@ -130,6 +130,11 @@ with st.container():
 
     # === ABA DE CADASTRO ===
     with tab2:
+        chaves_cadastro = ["cad_nf", "cad_rz", "cad_cnpj", "cad_end", "cad_br", "cad_comp", "cad_cid", "cad_est"]
+        for chave in chaves_cadastro:
+            if chave not in st.session_state:
+                st.session_state[chave] = ""
+
         col_cnpj1, col_cnpj2 = st.columns([3, 1])
         input_cnpj_busca = col_cnpj1.text_input("CNPJ para busca automática:", placeholder="Digite o CNPJ...", key="busca_cnpj")
         
@@ -143,7 +148,6 @@ with st.container():
                             data = res_cnpj.json()
                             end_c = f"{data.get('logradouro', '')}, {data.get('numero', '')}".strip(", ")
                             
-                            # Injeta os dados na memória de forma instantânea
                             st.session_state["cad_nf"] = data.get("nome_fantasia") or data.get("razao_social", "")
                             st.session_state["cad_rz"] = data.get("razao_social", "")
                             st.session_state["cad_cnpj"] = input_cnpj_busca
@@ -183,19 +187,42 @@ with st.container():
         num_lic_input = col_s2.text_input("Nº Licença (Até 6 números) *", placeholder="Ex: 100355", key="cad_num")
         
         col_r, col_o, col_ot = st.columns([1, 1, 1.5])
-        xd_rest = col_r.number_input("Postos XDRest", min_value=0, value=1, key="cad_rest")
+        xd_rest = col_r.number_input("Postos Extra", min_value=0, value=1, key="cad_rest")
         xd_orders = col_o.number_input("Qtd. XDOrders", min_value=0, value=0, key="cad_ord")
         tipo_xdorders = col_ot.selectbox("Tipo XDOrders", ["Comum (R$ 8/cada)", "Esfiharia (R$ 6/cada)"], key="cad_tipo_ord")
+
+        st.markdown("#### Ajustes de Faturamento")
+        col_desc, col_acres = st.columns(2)
+        cad_desconto = col_desc.number_input("Desconto (R$)", min_value=0.0, value=0.0, format="%.2f", key="cad_desc")
+        cad_acrescimo = col_acres.number_input("Acréscimo (R$)", min_value=0.0, value=0.0, format="%.2f", key="cad_acresc")
         
-        total_calc = xd_orders * (6 if "Esfiharia" in tipo_xdorders else 8)
+        # CÁLCULO DE VALORES ATUALIZADO (A partir do 2º posto cobra 60)
+        v_postos = 280.0 + (max(0, int(xd_rest) - 1) * 60.0)
+        v_orders = int(xd_orders) * (6.0 if "Esfiharia" in tipo_xdorders else 8.0)
+        subtotal = v_postos + v_orders
+        total_calc = subtotal + cad_acrescimo - cad_desconto
         
         st.markdown(f"""
-        <div style="background-color: #E9ECEF; color: #000000; padding: 12px; border-radius: 6px; border: 1px solid #CED4DA; font-weight: bold; display: flex; align-items: center; gap: 8px;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1A1D20" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="1" x2="12" y2="23"></line>
-                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-            </svg>
-            Valor Total que compõe a Licença (XDOrders): R$ {total_calc},00
+        <div style="background-color: #E9ECEF; color: #000000; padding: 15px; border-radius: 6px; border: 1px solid #CED4DA;">
+            <h5 style="margin-top: 0; color: #343A40;">Detalhamento da Licença</h5>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                <span>Postos Extra ({int(xd_rest)}):</span> <span>R$ {f'{v_postos:.2f}'.replace('.', ',')}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                <span>XDOrders ({int(xd_orders)}):</span> <span>R$ {f'{v_orders:.2f}'.replace('.', ',')}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 4px; border-top: 1px solid #CED4DA; padding-top: 4px; font-weight: bold;">
+                <span>Subtotal:</span> <span>R$ {f'{subtotal:.2f}'.replace('.', ',')}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 4px; color: #DC3545;">
+                <span>Desconto:</span> <span>- R$ {f'{cad_desconto:.2f}'.replace('.', ',')}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 4px; color: #198754;">
+                <span>Acréscimo:</span> <span>+ R$ {f'{cad_acrescimo:.2f}'.replace('.', ',')}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: 900; margin-top: 10px; border-top: 2px solid #ADB5BD; padding-top: 8px;">
+                <span>TOTAL A FATURAR:</span> <span>R$ {f'{total_calc:.2f}'.replace('.', ',')}</span>
+            </div>
         </div>
         <br>
         """, unsafe_allow_html=True)
@@ -214,12 +241,13 @@ with st.container():
                     "tipo_sistema": tipo_sistema, "nome_fantasia": nome_fantasia, "nome_empresarial": nome_empresarial,
                     "cnpj": cnpj, "estado": estado, "cidade": cidade, "endereco": end_completo,
                     "xd_rest_postos": int(xd_rest), "xd_orders_postos": int(xd_orders),
-                    "tipo_xdorders": "Esfiharia" if "Esfiharia" in tipo_xdorders else "Comum", "bloqueado": False
+                    "tipo_xdorders": "Esfiharia" if "Esfiharia" in tipo_xdorders else "Comum",
+                    "desconto": float(cad_desconto), "acrescimo": float(cad_acrescimo),
+                    "bloqueado": False
                 }
                 res = requests.post(f"{URL_SUPABASE}/licencas", json=dados, headers=HEADERS)
                 if res.status_code in [200, 201]:
-                    # Elimina as chaves da memória para limpar os campos sem causar erro no Streamlit
-                    chaves_para_limpar = ["cad_nf", "cad_rz", "cad_cnpj", "cad_end", "cad_br", "cad_comp", "cad_cid", "cad_est", "cad_num", "busca_cnpj"]
+                    chaves_para_limpar = ["cad_nf", "cad_rz", "cad_cnpj", "cad_end", "cad_br", "cad_comp", "cad_cid", "cad_est", "cad_num", "busca_cnpj", "cad_desc", "cad_acresc"]
                     for chave in chaves_para_limpar:
                         if chave in st.session_state:
                             del st.session_state[chave]
@@ -265,7 +293,7 @@ with st.container():
                         c1.markdown(f"<strong style='color: #D97706;'>{num_lic}</strong>", unsafe_allow_html=True)
                         c2.markdown(f"**{lic.get('nome_fantasia')}**<br><small style='color: #495057;'>{lic.get('nome_empresarial', '-')}</small>", unsafe_allow_html=True)
                         c3.markdown(f"<strong style='color: #000000;'>CNPJ: {lic.get('cnpj', '-')}</strong><br><small style='color: #868E96;'>Token: <code>{lic.get('token_vinculo')}</code></small>", unsafe_allow_html=True)
-                        c4.markdown(f"**{lic.get('tipo_sistema', 'XDRest')}**<br><small style='color: #495057;'>Rest: {lic.get('xd_rest_postos')} | Ord: {lic.get('xd_orders_postos')}</small>", unsafe_allow_html=True)
+                        c4.markdown(f"**{lic.get('tipo_sistema', 'XDRest')}**<br><small style='color: #495057;'>Extra: {lic.get('xd_rest_postos')} | Ord: {lic.get('xd_orders_postos')}</small>", unsafe_allow_html=True)
                         
                         if is_bloqueado:
                             c5.markdown('<span class="btn-bloq-hook"></span>', unsafe_allow_html=True)
@@ -297,19 +325,46 @@ with st.container():
                         acao = st.session_state["acao_painel"].get(lic_id)
                         
                         if acao == "info":
+                            qtd_extra = int(lic.get('xd_rest_postos', 1))
+                            qtd_ord = int(lic.get('xd_orders_postos', 0))
+                            tipo_ord = lic.get('tipo_xdorders', 'Comum')
+                            desc = float(lic.get('desconto') or 0.0)
+                            acresc = float(lic.get('acrescimo') or 0.0)
+                            
+                            # CÁLCULO DE VALORES ATUALIZADO (A partir do 2º posto cobra 60)
+                            v_postos_info = 280.0 + (max(0, qtd_extra - 1) * 60.0)
+                            v_orders_info = qtd_ord * (6.0 if "Esfiharia" in tipo_ord else 8.0)
+                            subtotal_info = v_postos_info + v_orders_info
+                            total_info = subtotal_info + acresc - desc
+
                             st.markdown(f"""
                             <div style="background-color: #F8F9FA; padding: 20px; border-radius: 8px; border: 1px solid #CED4DA; margin: 10px 0;">
-                                <h4 style="color: #000; margin-top: 0;">Informações de {lic.get('nome_fantasia')}</h4>
-                                <ul style="color: #000; line-height: 1.8; font-weight: 500;">
-                                    <li><b>Nº Licença:</b> {num_lic}</li>
-                                    <li><b>Sistema:</b> {lic.get('tipo_sistema', 'XDRest')}</li>
-                                    <li><b>CNPJ:</b> {lic.get('cnpj', '-')}</li>
-                                    <li><b>Endereço:</b> {lic.get('endereco', '-')}</li>
-                                    <li><b>Cidade/UF:</b> {lic.get('cidade', '-')} - {lic.get('estado', '-')}</li>
-                                    <li><b>Postos:</b> XDRest ({lic.get('xd_rest_postos')}) | XDOrders ({lic.get('xd_orders_postos')})</li>
-                                    <li><b>Tipo XDOrders:</b> {lic.get('tipo_xdorders', 'Comum')}</li>
-                                    <li><b>Token do PC:</b> <code>{lic.get('token_vinculo')}</code></li>
-                                </ul>
+                                <h4 style="color: #000; margin-top: 0; margin-bottom: 15px;">Informações de {lic.get('nome_fantasia')}</h4>
+                                
+                                <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                                    <div style="flex: 1; min-width: 300px;">
+                                        <ul style="color: #000; line-height: 1.8; font-weight: 500; list-style-type: none; padding-left: 0;">
+                                            <li><b>Nº Licença:</b> {num_lic}</li>
+                                            <li><b>Sistema:</b> {lic.get('tipo_sistema', 'XDRest')}</li>
+                                            <li><b>CNPJ:</b> {lic.get('cnpj', '-')}</li>
+                                            <li><b>Endereço:</b> {lic.get('endereco', '-')}</li>
+                                            <li><b>Cidade/UF:</b> {lic.get('cidade', '-')} - {lic.get('estado', '-')}</li>
+                                            <li><b>Postos:</b> Postos Extra ({qtd_extra}) | XDOrders ({qtd_ord})</li>
+                                            <li><b>Tipo XDOrders:</b> {tipo_ord}</li>
+                                            <li><b>Token do PC:</b> <code>{lic.get('token_vinculo')}</code></li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <div style="flex: 1; min-width: 280px; background-color: #E9ECEF; padding: 15px; border-radius: 6px; border: 1px solid #DEE2E6; color: #000;">
+                                        <h5 style="margin-top: 0; border-bottom: 1px solid #CED4DA; padding-bottom: 5px;">Detalhamento Financeiro</h5>
+                                        <div style="display: flex; justify-content: space-between;"><span>Postos Extra ({qtd_extra} un.):</span> <span>R$ {f'{v_postos_info:.2f}'.replace('.', ',')}</span></div>
+                                        <div style="display: flex; justify-content: space-between;"><span>XDOrders ({qtd_ord} un.):</span> <span>R$ {f'{v_orders_info:.2f}'.replace('.', ',')}</span></div>
+                                        <div style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 5px;"><span>Subtotal:</span> <span>R$ {f'{subtotal_info:.2f}'.replace('.', ',')}</span></div>
+                                        <div style="display: flex; justify-content: space-between; color: #DC3545;"><span>Desconto:</span> <span>- R$ {f'{desc:.2f}'.replace('.', ',')}</span></div>
+                                        <div style="display: flex; justify-content: space-between; color: #198754;"><span>Acréscimo:</span> <span>+ R$ {f'{acresc:.2f}'.replace('.', ',')}</span></div>
+                                        <div style="display: flex; justify-content: space-between; font-size: 16px; font-weight: 900; margin-top: 10px; border-top: 2px solid #ADB5BD; padding-top: 5px;"><span>Total da Licença:</span> <span>R$ {f'{total_info:.2f}'.replace('.', ',')}</span></div>
+                                    </div>
+                                </div>
                             </div>
                             """, unsafe_allow_html=True)
 
@@ -341,8 +396,13 @@ with st.container():
                                 e_nlic = col_e9.text_input("Nº Licença", value=num_only)
 
                                 col_r, col_o = st.columns(2)
-                                e_rest = col_r.number_input("Postos XDRest", value=int(lic.get('xd_rest_postos', 1)))
+                                e_rest = col_r.number_input("Postos Extra", value=int(lic.get('xd_rest_postos', 1)))
                                 e_ord = col_o.number_input("Postos XDOrders", value=int(lic.get('xd_orders_postos', 0)))
+
+                                st.markdown("#### Ajustes de Faturamento")
+                                col_ed, col_ea = st.columns(2)
+                                e_desc = col_ed.number_input("Desconto (R$)", value=float(lic.get('desconto') or 0.0), format="%.2f")
+                                e_acresc = col_ea.number_input("Acréscimo (R$)", value=float(lic.get('acrescimo') or 0.0), format="%.2f")
                                 
                                 c_ok, c_cc = st.columns(2)
                                 
@@ -351,7 +411,8 @@ with st.container():
                                     up_data = {
                                         "nome_fantasia": e_nome, "nome_empresarial": e_razao, "cnpj": e_cnpj, "endereco": e_end,
                                         "cidade": e_cid, "estado": e_est, "tipo_sistema": e_sys, "numero_licenca": f"XDBR.{num_formatado}",
-                                        "xd_rest_postos": e_rest, "xd_orders_postos": e_ord, "tipo_xdorders": "Esfiharia" if "Esfiharia" in e_tord else "Comum"
+                                        "xd_rest_postos": e_rest, "xd_orders_postos": e_ord, "tipo_xdorders": "Esfiharia" if "Esfiharia" in e_tord else "Comum",
+                                        "desconto": e_desc, "acrescimo": e_acresc
                                     }
                                     requests.patch(f"{URL_SUPABASE}/licencas?id=eq.{lic_id}", json=up_data, headers=HEADERS)
                                     st.session_state["acao_painel"][lic_id] = None
