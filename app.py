@@ -130,16 +130,9 @@ with st.container():
 
     # === ABA DE CADASTRO ===
     with tab2:
-        # INICIALIZAÇÃO SEGURA DAS VARIÁVEIS NA MEMÓRIA
-        chaves_cadastro = ["cad_nf", "cad_rz", "cad_cnpj", "cad_end", "cad_br", "cad_comp", "cad_cid", "cad_est"]
-        for chave in chaves_cadastro:
-            if chave not in st.session_state:
-                st.session_state[chave] = ""
-
         col_cnpj1, col_cnpj2 = st.columns([3, 1])
-        input_cnpj_busca = col_cnpj1.text_input("CNPJ para busca automática:", placeholder="Digite o CNPJ...")
+        input_cnpj_busca = col_cnpj1.text_input("CNPJ para busca automática:", placeholder="Digite o CNPJ...", key="busca_cnpj")
         
-        # SISTEMA DE BUSCA E PREENCHIMENTO AUTOMÁTICO CORRIGIDO
         if col_cnpj2.button("Buscar CNPJ", use_container_width=True):
             cnpj_limpo = re.sub(r'\D', '', input_cnpj_busca)
             if len(cnpj_limpo) == 14:
@@ -150,7 +143,7 @@ with st.container():
                             data = res_cnpj.json()
                             end_c = f"{data.get('logradouro', '')}, {data.get('numero', '')}".strip(", ")
                             
-                            # Injeta os dados diretamente na memória dos campos
+                            # Injeta os dados na memória de forma instantânea
                             st.session_state["cad_nf"] = data.get("nome_fantasia") or data.get("razao_social", "")
                             st.session_state["cad_rz"] = data.get("razao_social", "")
                             st.session_state["cad_cnpj"] = input_cnpj_busca
@@ -211,7 +204,8 @@ with st.container():
         st.markdown(f"**Token de Vínculo:** `{token_gerado}`", unsafe_allow_html=True)
         
         if st.button("Emitir e Salvar Licença", use_container_width=True):
-            if not nome_fantasia or not num_lic_input: st.error("Nome Fantasia e Nº Licença são obrigatórios!")
+            if not nome_fantasia or not num_lic_input: 
+                st.error("Nome Fantasia e Nº Licença são obrigatórios!")
             else:
                 num_formatado = re.sub(r'\D', '', num_lic_input).zfill(6)
                 end_completo = f"{endereco} - {bairro}".strip(" - ") + (f" ({complemento})" if complemento else "")
@@ -224,10 +218,15 @@ with st.container():
                 }
                 res = requests.post(f"{URL_SUPABASE}/licencas", json=dados, headers=HEADERS)
                 if res.status_code in [200, 201]:
-                    # Limpa o formulário após salvar com sucesso
-                    for chave in chaves_cadastro:
-                        st.session_state[chave] = ""
-                    st.session_state["cad_num"] = ""
+                    # Elimina as chaves da memória para limpar os campos sem causar erro no Streamlit
+                    chaves_para_limpar = ["cad_nf", "cad_rz", "cad_cnpj", "cad_end", "cad_br", "cad_comp", "cad_cid", "cad_est", "cad_num", "busca_cnpj"]
+                    for chave in chaves_para_limpar:
+                        if chave in st.session_state:
+                            del st.session_state[chave]
+                    
+                    if "cad_rest" in st.session_state: del st.session_state["cad_rest"]
+                    if "cad_ord" in st.session_state: del st.session_state["cad_ord"]
+                    
                     st.success("Licença salva com sucesso!")
                     st.rerun()
 
